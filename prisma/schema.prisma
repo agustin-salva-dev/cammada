@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  SUPERADMIN
+  ADMIN
+  AYUDANTE
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       Rol      @default(AYUDANTE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Equipo {
+  id         String     @id @default(uuid())
+  nombre     String     @unique
+  luchadores Luchador[]
+  createdAt  DateTime   @default(now())
+}
+
+model CategoriaPeso {
+  id         String     @id @default(uuid())
+  nombre     String     @unique // Ej: "Pluma"
+  rango      String?    // Ej: "61–66 kg"
+  luchadores Luchador[]
+  createdAt  DateTime   @default(now())
+}
+
+model Modalidad {
+  id        String           @id @default(uuid())
+  nombre    String           @unique // Ej: "MMA Pro", "Grappling"
+  records   RecordLuchador[]
+  createdAt DateTime         @default(now())
+}
+
+model Luchador {
+  id           String          @id @default(uuid())
+  nombre       String
+  apodo        String
+  apellido     String
+  edad         Int?
+  altura       Int?
+  ultimoPeso   Float?
+  pais         String
+  ciudad       String
+  
+  // Relaciones
+  categoriaId  String
+  categoria    CategoriaPeso   @relation(fields: [categoriaId], references: [id])
+  
+  equipoId     String
+  equipo       Equipo          @relation(fields: [equipoId], references: [id])
+  
+  records      RecordLuchador[]
+  
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model RecordLuchador {
+  id          String    @id @default(uuid())
+  luchadorId  String
+  luchador    Luchador  @relation(fields: [luchadorId], references: [id], onDelete: Cascade)
+  
+  modalidadId String
+  modalidad   Modalidad @relation(fields: [modalidadId], references: [id])
+  
+  victorias   Int       @default(0)
+  derrotas    Int       @default(0)
+  empates     Int       @default(0)
+
+  // Asegura que un luchador solo tenga un récord único por modalidad
+  @@unique([luchadorId, modalidadId])
+}

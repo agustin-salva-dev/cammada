@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const spaceGroteskHeading = Space_Grotesk({
   subsets: ["latin"],
@@ -50,6 +51,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

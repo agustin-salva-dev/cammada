@@ -25,6 +25,8 @@ import {
   RecordModalidad,
 } from "@/components/luchadores/luchador.types";
 import Image from "next/image";
+import { createLuchador } from "@/features/luchadores/actions";
+import { toast } from "sonner";
 
 const PAISES_PLACEHOLDER = [
   "Argentina",
@@ -151,12 +153,26 @@ export function ModalAgregarLuchador({
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: agregar validaciones
-    onSubmit?.(form);
-    setOpen(false);
-    setForm(INITIAL_FORM);
+    try {
+      const res = await createLuchador(form);
+      if (res.success) {
+        onSubmit?.(form);
+        setOpen(false);
+        setForm(INITIAL_FORM);
+        toast.success("Peleador agregado correctamente", {
+          position: "top-center",
+        });
+      } else {
+        toast.error("Error al guardar: " + (res.error || "Error desconocido"));
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        "Ocurrió un error inesperado al intentar guardar el peleador.",
+      );
+    }
   }
 
   function handleCancel() {

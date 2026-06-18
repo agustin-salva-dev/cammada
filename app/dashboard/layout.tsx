@@ -11,9 +11,9 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <AdminSidebar />
-      <div className="w-full flex">
+      <div className="flex-1 flex min-w-0">
         <SidebarTriggerContainer />
-        <div className="w-full p-5 pt-3">
+        <div className="flex-1 min-w-0 p-5 pt-3">
           <DashboardHeader />
           {children}
         </div>
