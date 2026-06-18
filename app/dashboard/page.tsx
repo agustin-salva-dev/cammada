@@ -1,3 +1,3 @@
 export default function Dashboard() {
-  return <main>dashboard</main>;
+  return <main className="w-full px-5 py-3"></main>;
 }
