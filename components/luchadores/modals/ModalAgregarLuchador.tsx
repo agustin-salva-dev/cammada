@@ -27,34 +27,11 @@ import {
 import Image from "next/image";
 import { createLuchador } from "@/features/luchadores/actions";
 import { toast } from "sonner";
+import { PAISES, CIUDADES } from "@/config/paises";
+import { getEquipos } from "@/features/equipos/actions";
 
-const PAISES_PLACEHOLDER = [
-  "Argentina",
-  "Bolivia",
-  "Chile",
-  "Paraguay",
-  "Uruguay",
-  "Brasil",
-  "Perú",
-];
-
-const CIUDADES_PLACEHOLDER = [
-  "Salta",
-  "Buenos Aires",
-  "Córdoba",
-  "Rosario",
-  "Jujuy",
-  "Tucumán",
-  "Mendoza",
-];
-
-const EQUIPOS_PLACEHOLDER = [
-  "Team Fenix",
-  "Team Xtreme",
-  "Team Semental",
-  "Team GR",
-  "Sin equipo",
-];
+const result = await getEquipos();
+const equipos = result.success && result.data ? result.data : [];
 
 const CATEGORIAS = [
   "Paja (< 52 kg)",
@@ -336,7 +313,7 @@ export function ModalAgregarLuchador({
                   onChange={(e) => setField("pais", e.target.value)}
                 >
                   <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-                  {PAISES_PLACEHOLDER.map((p) => (
+                  {PAISES.map((p) => (
                     <NativeSelectOption key={p} value={p}>
                       {p}
                     </NativeSelectOption>
@@ -359,7 +336,7 @@ export function ModalAgregarLuchador({
                   onChange={(e) => setField("ciudad", e.target.value)}
                 >
                   <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-                  {CIUDADES_PLACEHOLDER.map((c) => (
+                  {CIUDADES.map((c) => (
                     <NativeSelectOption key={c} value={c}>
                       {c}
                     </NativeSelectOption>
@@ -382,9 +359,9 @@ export function ModalAgregarLuchador({
                   onChange={(e) => setField("equipo", e.target.value)}
                 >
                   <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-                  {EQUIPOS_PLACEHOLDER.map((eq) => (
-                    <NativeSelectOption key={eq} value={eq}>
-                      {eq}
+                  {equipos.map((eq) => (
+                    <NativeSelectOption key={eq.id} value={eq.nombre}>
+                      {eq.nombre}
                     </NativeSelectOption>
                   ))}
                 </NativeSelect>
