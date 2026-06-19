@@ -31,7 +31,11 @@ export async function createLuchador(rawInput: unknown) {
   try {
     const validation = luchadorSchema.safeParse(rawInput);
     if (!validation.success) {
-      return { success: false, error: "Datos inválidos", details: validation.error.format() };
+      return {
+        success: false,
+        error: "Datos inválidos",
+        details: validation.error.format(),
+      };
     }
 
     const validatedData = validation.data;
@@ -45,21 +49,21 @@ export async function createLuchador(rawInput: unknown) {
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
-      // 1. Obtener o crear Equipo
+      // Obtener o crear Equipo
       const dbEquipo = await tx.equipo.upsert({
         where: { nombre: equipo },
         update: {},
         create: { nombre: equipo },
       });
 
-      // 2. Obtener o crear Categoría de Peso
+      // Obtener o crear Categoría de Peso
       const dbCategoria = await tx.categoriaPeso.upsert({
         where: { nombre: categoria },
         update: {},
         create: { nombre: categoria },
       });
 
-      // 3. Crear Luchador
+      // Crear Luchador
       const luchador = await tx.luchador.create({
         data: {
           nombre,
@@ -75,7 +79,7 @@ export async function createLuchador(rawInput: unknown) {
         },
       });
 
-      // 4. Crear los registros de modalidad
+      // Crear los registros de modalidad
       if (records && records.length > 0) {
         for (const record of records) {
           const modalidadNombre = record.modalidad || "Sin modalidad";
@@ -112,7 +116,11 @@ export async function updateLuchador(id: string, rawInput: unknown) {
   try {
     const validation = luchadorSchema.safeParse(rawInput);
     if (!validation.success) {
-      return { success: false, error: "Datos inválidos", details: validation.error.format() };
+      return {
+        success: false,
+        error: "Datos inválidos",
+        details: validation.error.format(),
+      };
     }
 
     const validatedData = validation.data;
@@ -126,21 +134,21 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
-      // 1. Obtener o crear Equipo
+      // Obtener o crear Equipo
       const dbEquipo = await tx.equipo.upsert({
         where: { nombre: equipo },
         update: {},
         create: { nombre: equipo },
       });
 
-      // 2. Obtener o crear Categoría de Peso
+      // Obtener o crear Categoría de Peso
       const dbCategoria = await tx.categoriaPeso.upsert({
         where: { nombre: categoria },
         update: {},
         create: { nombre: categoria },
       });
 
-      // 3. Actualizar Luchador
+      // Actualizar Luchador
       const luchador = await tx.luchador.update({
         where: { id },
         data: {
@@ -157,7 +165,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
         },
       });
 
-      // 4. Actualizar Récords (Eliminar antiguos y crear los nuevos)
+      // Actualizar Récords
       await tx.recordLuchador.deleteMany({
         where: { luchadorId: id },
       });
@@ -204,5 +212,143 @@ export async function deleteLuchador(id: string) {
   } catch (error) {
     console.error("Error al eliminar luchador:", error);
     return { success: false, error: "No se pudo eliminar el luchador" };
+  }
+}
+
+export async function fetchTapologyFighter(slugOrUrl: string) {
+  try {
+    if (!slugOrUrl) {
+      return {
+        success: false,
+        error: "Debe ingresar una URL o ID de Tapology",
+      };
+    }
+
+    // Extraer el slug de la URL si ingresó la URL completa
+    let slug = slugOrUrl.split("?")[0].replace(/\/+$/, "");
+    if (slug.includes("/fighters/")) {
+      const parts = slug.split("/fighters/");
+      slug = parts[parts.length - 1];
+    } else if (slug.includes("/")) {
+      const parts = slug.split("/");
+      slug = parts[parts.length - 1];
+    }
+    slug = slug.trim();
+
+    const apiKey =
+      process.env.RAPIDAPI_KEY ||
+      "ce57bab601msh58a4c73a4723b40p16e3f7jsn00afa3838bfd";
+    const apiHost =
+      process.env.RAPIDAPI_HOST || "unofficial-tapology-api.p.rapidapi.com";
+
+    const url = `https://${apiHost}/api/v2/fighters/${slug}?fields=firstname%2Clastname%2Cnickname%2Cage%2Cdate_of_birth%2Cweight_class%2Cfull_record%2Cwins%2Closses%2Cdraws%2Cno_contest%2Ctko_ko%2Csubmission%2Cdecision%2Clast_weigh_in`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": apiKey,
+        "x-rapidapi-host": apiHost,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return {
+          success: false,
+          error:
+            "Luchador no encontrado en Tapology. Verifique el ID o la URL.",
+        };
+      }
+      return {
+        success: false,
+        error: `Error de la API de Tapology (${response.status})`,
+      };
+    }
+
+    const json = await response.json();
+    const data = json.data;
+
+    if (!data) {
+      return {
+        success: false,
+        error: "No se encontraron datos para este luchador.",
+      };
+    }
+
+    // Mapear peso de lbs a kg
+    let pesoKg: number | undefined;
+    if (data.last_weigh_in) {
+      const lbsMatch = data.last_weigh_in.match(/(\d+(?:\.\d+)?)\s*lbs/i);
+      if (lbsMatch) {
+        const lbs = parseFloat(lbsMatch[1]);
+        if (!isNaN(lbs)) {
+          pesoKg = Math.round(lbs * 0.45359237 * 10) / 10;
+        }
+      }
+    }
+
+    // Mapear categoría de peso en inglés a los nombres en español
+    let categoriaEsp = "";
+    if (data.weight_class) {
+      const weightClassLower = data.weight_class.toLowerCase();
+      if (weightClassLower.includes("strawweight")) {
+        categoriaEsp = "Paja (< 52 kg)";
+      } else if (weightClassLower.includes("flyweight")) {
+        categoriaEsp = "Mosca (52–56 kg)";
+      } else if (weightClassLower.includes("bantamweight")) {
+        categoriaEsp = "Gallo (56–61 kg)";
+      } else if (weightClassLower.includes("featherweight")) {
+        categoriaEsp = "Pluma (61–66 kg)";
+      } else if (weightClassLower.includes("lightweight")) {
+        categoriaEsp = "Ligero (66–70 kg)";
+      } else if (weightClassLower.includes("welterweight")) {
+        categoriaEsp = "Wélter (70–77 kg)";
+      } else if (weightClassLower.includes("middleweight")) {
+        categoriaEsp = "Mediano (77–84 kg)";
+      } else if (
+        weightClassLower.includes("light heavyweight") ||
+        weightClassLower.includes("lightheavyweight")
+      ) {
+        categoriaEsp = "Semipesado (84–93 kg)";
+      } else if (weightClassLower.includes("heavyweight")) {
+        categoriaEsp = "Pesado (93–120 kg)";
+      } else if (
+        weightClassLower.includes("super heavyweight") ||
+        weightClassLower.includes("superheavyweight")
+      ) {
+        categoriaEsp = "Superpesado (> 120 kg)";
+      }
+    }
+
+    // Generar el record inicial sin modalidad asignada
+    const initialRecord = {
+      id: crypto.randomUUID(),
+      modalidad: "" as const,
+      victorias: Number(data.wins) || 0,
+      derrotas: Number(data.losses) || 0,
+      empates: Number(data.draws) || 0,
+    };
+
+    const mappedFighter = {
+      nombre: data.firstname || "",
+      apellido: data.lastname || "",
+      apodo: data.nickname || "",
+      edad: data.age ? Number(data.age) : undefined,
+      ultimoPeso: pesoKg,
+      categoria: categoriaEsp,
+      pais: "Argentina",
+      ciudad: "Salta",
+      equipo: "",
+      records: [initialRecord],
+    };
+
+    return { success: true, data: mappedFighter };
+  } catch (error) {
+    console.error("Error al obtener luchador de Tapology:", error);
+    return {
+      success: false,
+      error: "Ocurrió un error inesperado al consultar Tapology.",
+    };
   }
 }
