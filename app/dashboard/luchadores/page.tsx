@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { BadgePlus, Download } from "lucide-react";
+import { BadgePlus, Download, Sparkles } from "lucide-react";
 import { IconButtonConfig } from "@/components/layout/DashboardHeader";
 import { ModalAgregarLuchador } from "@/components/luchadores/modals/ModalAgregarLuchador";
+import { ModalImportarLuchador } from "@/components/luchadores/modals/ModalImportarLuchador";
 import { getLuchadores } from "@/features/luchadores/actions";
 import { LuchadoresTable } from "./luchadores-table";
 import type { LuchadorRow } from "./columns";
@@ -38,10 +39,18 @@ export default async function Luchadores() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary">
+          <Button variant="outline">
             <Download strokeWidth={IconButtonConfig.strokeWidth} />
             Exportar luchadores
           </Button>
+          <ModalImportarLuchador
+            trigger={
+              <Button variant="secondary">
+                <Sparkles strokeWidth={IconButtonConfig.strokeWidth} />
+                Importar Tapology
+              </Button>
+            }
+          />
           <ModalAgregarLuchador
             trigger={
               <Button>
