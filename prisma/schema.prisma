@@ -85,3 +85,29 @@ model RecordLuchador {
 
   @@unique([luchadorId, modalidadId])
 }
+
+enum EstadoEvento {
+  BORRADOR
+  PROGRAMADO
+  CONFIRMADO
+  FINALIZADO
+  CANCELADO
+}
+
+model Evento {
+  id          String       @id @default(uuid())
+  numero      Int          @unique
+  fecha       DateTime
+  horaInicio  String
+  horaFin     String
+  lugarNombre String
+  calle       String
+  calleNumero String
+  estado      EstadoEvento @default(PROGRAMADO)
+
+  // Relación futura con peleas:
+  // peleas Pelea[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
