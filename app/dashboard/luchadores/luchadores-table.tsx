@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { ModalEditarLuchador } from "@/components/luchadores/modals/ModalEditarLuchador";
 
 interface LuchadoresTableProps {
   data: LuchadorRow[];
@@ -32,9 +33,14 @@ export function LuchadoresTable({
     nombre: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [editTarget, setEditTarget] = React.useState<LuchadorRow | null>(null);
 
   const handleDelete = React.useCallback((id: string, nombre: string) => {
     setDeleteTarget({ id, nombre });
+  }, []);
+
+  const handleEdit = React.useCallback((luchador: LuchadorRow) => {
+    setEditTarget(luchador);
   }, []);
 
   const confirmDelete = React.useCallback(async () => {
@@ -60,7 +66,7 @@ export function LuchadoresTable({
     }
   }, [deleteTarget]);
 
-  const columns = React.useMemo(() => getColumns(handleDelete), [handleDelete]);
+  const columns = React.useMemo(() => getColumns(handleDelete, handleEdit), [handleDelete, handleEdit]);
 
   return (
     <>
@@ -103,6 +109,14 @@ export function LuchadoresTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ModalEditarLuchador
+        luchador={editTarget}
+        open={editTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+      />
     </>
   );
 }
