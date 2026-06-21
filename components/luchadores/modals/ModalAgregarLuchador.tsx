@@ -16,6 +16,7 @@ import { createLuchador } from "@/features/luchadores/actions";
 import { toast } from "sonner";
 import { LuchadorForm } from "../form/LuchadorForm";
 import { getCategoriasPesoSelect } from "@/features/categorias-peso/actions";
+import { getModalidadesSelect } from "@/features/modalidades/actions";
 
 interface ModalAgregarLuchadorProps {
   trigger: React.ReactNode;
@@ -29,6 +30,11 @@ interface CategoriaPesoOption {
   limiteSuperior: number | null;
 }
 
+interface ModalidadOption {
+  id: string;
+  nombre: string;
+}
+
 export function ModalAgregarLuchador({
   trigger,
   onSubmit,
@@ -36,12 +42,18 @@ export function ModalAgregarLuchador({
   const [open, setOpen] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
   const [categorias, setCategorias] = React.useState<CategoriaPesoOption[]>([]);
+  const [modalidades, setModalidades] = React.useState<ModalidadOption[]>([]);
 
   React.useEffect(() => {
     if (open) {
       getCategoriasPesoSelect().then((res) => {
         if (res.success && res.data) {
           setCategorias(res.data as unknown as CategoriaPesoOption[]);
+        }
+      });
+      getModalidadesSelect().then((res) => {
+        if (res.success && res.data) {
+          setModalidades(res.data as ModalidadOption[]);
         }
       });
     }
@@ -96,6 +108,7 @@ export function ModalAgregarLuchador({
             onSubmit={handleSubmit}
             isPending={isPending}
             categorias={categorias}
+            modalidades={modalidades}
           />
         )}
 
