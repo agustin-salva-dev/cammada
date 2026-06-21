@@ -1,16 +1,6 @@
-export type ModalidadCombate =
-  | "MMA Pro"
-  | "MMA Amateur"
-  | "Kick Boxing Pro"
-  | "Kick Boxing Semi-Pro"
-  | "Kick Boxing Amateur"
-  | "Grappling"
-  | "Only Submission"
-  | "Box";
-
 export interface RecordModalidad {
   id: string;
-  modalidad: ModalidadCombate | "";
+  modalidad: string;
   victorias: number;
   derrotas: number;
   empates: number;

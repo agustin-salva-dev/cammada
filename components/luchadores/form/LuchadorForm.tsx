@@ -11,23 +11,16 @@ import {
 } from "@/components/ui/native-select";
 import {
   LuchadorFormData,
-  ModalidadCombate,
   RecordModalidad,
 } from "@/components/luchadores/luchador.types";
 import Image from "next/image";
 import { PAISES, CIUDADES } from "@/config/paises";
 import { getEquipos } from "@/features/equipos/actions";
 
-export const MODALIDADES: ModalidadCombate[] = [
-  "MMA Pro",
-  "MMA Amateur",
-  "Kick Boxing Pro",
-  "Kick Boxing Semi-Pro",
-  "Kick Boxing Amateur",
-  "Grappling",
-  "Only Submission",
-  "Box",
-];
+interface ModalidadOption {
+  id: string;
+  nombre: string;
+}
 
 export const INITIAL_FORM: LuchadorFormData = {
   nombre: "",
@@ -71,6 +64,7 @@ interface LuchadorFormProps {
   onSubmit: (data: LuchadorFormData) => void;
   isPending?: boolean;
   categorias: CategoriaPesoOption[];
+  modalidades: ModalidadOption[];
 }
 
 export function LuchadorForm({
@@ -79,6 +73,7 @@ export function LuchadorForm({
   onSubmit,
   isPending = false,
   categorias,
+  modalidades,
 }: LuchadorFormProps) {
   const [form, setForm] = React.useState<LuchadorFormData>(
     initialData || INITIAL_FORM,
@@ -513,14 +508,14 @@ export function LuchadorForm({
                     actualizarRecord(
                       record.id,
                       "modalidad",
-                      e.target.value as ModalidadCombate,
+                      e.target.value,
                     )
                   }
                 >
                   <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-                  {MODALIDADES.map((m) => (
-                    <NativeSelectOption key={m} value={m}>
-                      {m}
+                  {modalidades.map((m) => (
+                    <NativeSelectOption key={m.id} value={m.nombre}>
+                      {m.nombre}
                     </NativeSelectOption>
                   ))}
                 </NativeSelect>
