@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Trash2, Copy } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +38,7 @@ export type LuchadorRow = {
 
 export function getColumns(
   onDelete: (id: string, nombre: string) => void,
+  onEdit: (luchador: LuchadorRow) => void,
 ): ColumnDef<LuchadorRow>[] {
   return [
     {
@@ -235,11 +236,9 @@ export function getColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(luchador.id)}
-              >
-                <Copy className="h-4 w-4" />
-                Copiar ID
+              <DropdownMenuItem onClick={() => onEdit(luchador)}>
+                <Pencil className="h-4 w-4" />
+                Editar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
