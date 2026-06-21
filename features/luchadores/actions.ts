@@ -45,7 +45,7 @@ export async function createLuchador(rawInput: unknown) {
     const pais = validatedData.pais || "Desconocido";
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
-    const categoria = validatedData.categoria || "Sin categoría";
+    const categoria = validatedData.categoria;
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
@@ -56,12 +56,9 @@ export async function createLuchador(rawInput: unknown) {
         create: { nombre: equipo },
       });
 
-      // Obtener o crear Categoría de Peso
-      const dbCategoria = await tx.categoriaPeso.upsert({
-        where: { nombre: categoria },
-        update: {},
-        create: { nombre: categoria },
-      });
+      if (!categoria) {
+        throw new Error("La categoría de peso es obligatoria");
+      }
 
       // Crear Luchador
       const luchador = await tx.luchador.create({
@@ -75,7 +72,7 @@ export async function createLuchador(rawInput: unknown) {
           pais,
           ciudad,
           equipoId: dbEquipo.id,
-          categoriaId: dbCategoria.id,
+          categoriaId: categoria,
         },
       });
 
@@ -130,7 +127,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     const pais = validatedData.pais || "Desconocido";
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
-    const categoria = validatedData.categoria || "Sin categoría";
+    const categoria = validatedData.categoria;
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
@@ -141,12 +138,9 @@ export async function updateLuchador(id: string, rawInput: unknown) {
         create: { nombre: equipo },
       });
 
-      // Obtener o crear Categoría de Peso
-      const dbCategoria = await tx.categoriaPeso.upsert({
-        where: { nombre: categoria },
-        update: {},
-        create: { nombre: categoria },
-      });
+      if (!categoria) {
+        throw new Error("La categoría de peso es obligatoria");
+      }
 
       // Actualizar Luchador
       const luchador = await tx.luchador.update({
@@ -161,7 +155,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
           pais,
           ciudad,
           equipoId: dbEquipo.id,
-          categoriaId: dbCategoria.id,
+          categoriaId: categoria,
         },
       });
 
@@ -289,35 +283,39 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
     }
 
     // Mapear categoría de peso en inglés a los nombres en español
-    let categoriaEsp = "";
+    const TAPOLOGY_WEIGHT_MAP: Record<string, string> = {
+      strawweight: "Paja",
+      flyweight: "Mosca",
+      bantamweight: "Gallo",
+      featherweight: "Pluma",
+      lightweight: "Ligero",
+      welterweight: "Wélter",
+      middleweight: "Mediano",
+      "light heavyweight": "Semipesado",
+      lightheavyweight: "Semipesado",
+      heavyweight: "Pesado",
+      "super heavyweight": "Superpesado",
+      superheavyweight: "Superpesado",
+    };
+
+    let categoriaId = "";
     if (data.weight_class) {
       const weightClassLower = data.weight_class.toLowerCase();
-      if (weightClassLower.includes("strawweight")) {
-        categoriaEsp = "Paja (< 52 kg)";
-      } else if (weightClassLower.includes("flyweight")) {
-        categoriaEsp = "Mosca (52–56 kg)";
-      } else if (weightClassLower.includes("bantamweight")) {
-        categoriaEsp = "Gallo (56–61 kg)";
-      } else if (weightClassLower.includes("featherweight")) {
-        categoriaEsp = "Pluma (61–66 kg)";
-      } else if (weightClassLower.includes("lightweight")) {
-        categoriaEsp = "Ligero (66–70 kg)";
-      } else if (weightClassLower.includes("welterweight")) {
-        categoriaEsp = "Wélter (70–77 kg)";
-      } else if (weightClassLower.includes("middleweight")) {
-        categoriaEsp = "Mediano (77–84 kg)";
-      } else if (
-        weightClassLower.includes("light heavyweight") ||
-        weightClassLower.includes("lightheavyweight")
-      ) {
-        categoriaEsp = "Semipesado (84–93 kg)";
-      } else if (weightClassLower.includes("heavyweight")) {
-        categoriaEsp = "Pesado (93–120 kg)";
-      } else if (
-        weightClassLower.includes("super heavyweight") ||
-        weightClassLower.includes("superheavyweight")
-      ) {
-        categoriaEsp = "Superpesado (> 120 kg)";
+      let nombreEsp = "";
+      for (const [key, value] of Object.entries(TAPOLOGY_WEIGHT_MAP)) {
+        if (weightClassLower.includes(key)) {
+          nombreEsp = value;
+          break;
+        }
+      }
+
+      if (nombreEsp) {
+        const dbCat = await db.categoriaPeso.findFirst({
+          where: { nombre: { equals: nombreEsp, mode: "insensitive" } },
+        });
+        if (dbCat) {
+          categoriaId = dbCat.id;
+        }
       }
     }
 
@@ -336,7 +334,7 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       apodo: data.nickname || "",
       edad: data.age ? Number(data.age) : undefined,
       ultimoPeso: pesoKg,
-      categoria: categoriaEsp,
+      categoria: categoriaId,
       pais: "Argentina",
       ciudad: "Salta",
       equipo: "",

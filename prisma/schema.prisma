@@ -32,11 +32,13 @@ model Equipo {
 }
 
 model CategoriaPeso {
-  id         String     @id @default(uuid())
-  nombre     String     @unique 
-  rango      String?   
-  luchadores Luchador[]
-  createdAt  DateTime   @default(now())
+  id              String     @id @default(uuid())
+  nombre          String     @unique
+  orden           Int        @default(0)
+  limiteInferior  Int?
+  limiteSuperior  Int?
+  luchadores      Luchador[]
+  createdAt       DateTime   @default(now())
 }
 
 model Modalidad {
