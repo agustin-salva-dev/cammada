@@ -1,8 +1,3 @@
-/**
- * Datos centralizados de países y ciudades para formularios.
- * Usados tanto en equipos como en luchadores.
- */
-
 export const PAISES = [
   "Argentina",
   "Bolivia",
@@ -14,13 +9,14 @@ export const PAISES = [
 ] as const;
 
 export const CIUDADES = [
-  "Salta",
-  "Buenos Aires",
-  "Córdoba",
-  "Rosario",
+  "Salta (Capital)",
+  "Salta (Oran)",
+  "Salta (Guemes)",
   "Jujuy",
   "Tucumán",
   "Mendoza",
+  "Córdoba",
+  "Buenos Aires",
 ] as const;
 
 export type Pais = (typeof PAISES)[number];
