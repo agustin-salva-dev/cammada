@@ -18,6 +18,7 @@ import { LuchadorFormData } from "@/components/luchadores/luchador.types";
 import { fetchTapologyFighter, createLuchador } from "@/features/luchadores/actions";
 import { toast } from "sonner";
 import { LuchadorForm } from "../form/LuchadorForm";
+import { getCategoriasPesoSelect } from "@/features/categorias-peso/actions";
 
 interface ModalImportarLuchadorProps {
   trigger: React.ReactNode;
@@ -25,6 +26,13 @@ interface ModalImportarLuchadorProps {
 }
 
 type ModalStep = "search" | "form";
+
+interface CategoriaPesoOption {
+  id: string;
+  nombre: string;
+  limiteInferior: number | null;
+  limiteSuperior: number | null;
+}
 
 export function ModalImportarLuchador({
   trigger,
@@ -36,6 +44,17 @@ export function ModalImportarLuchador({
   const [isSearching, setIsSearching] = React.useState(false);
   const [isSaving, startSavingTransition] = React.useTransition();
   const [importedData, setImportedData] = React.useState<LuchadorFormData | undefined>(undefined);
+  const [categorias, setCategorias] = React.useState<CategoriaPesoOption[]>([]);
+
+  React.useEffect(() => {
+    if (open) {
+      getCategoriasPesoSelect().then((res) => {
+        if (res.success && res.data) {
+          setCategorias(res.data as unknown as CategoriaPesoOption[]);
+        }
+      });
+    }
+  }, [open]);
 
   function handleOpenChange(isOpen: boolean) {
     setOpen(isOpen);
@@ -170,6 +189,7 @@ export function ModalImportarLuchador({
               initialData={importedData}
               onSubmit={handleSave}
               isPending={isSaving}
+              categorias={categorias}
             />
 
             <DialogFooter className="px-6 py-4 border-t border-border sticky bottom-0 bg-popover/95 backdrop-blur z-10">

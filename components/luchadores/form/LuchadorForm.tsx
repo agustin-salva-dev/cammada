@@ -18,19 +18,6 @@ import Image from "next/image";
 import { PAISES, CIUDADES } from "@/config/paises";
 import { getEquipos } from "@/features/equipos/actions";
 
-export const CATEGORIAS = [
-  "Paja (< 52 kg)",
-  "Mosca (52–56 kg)",
-  "Gallo (56–61 kg)",
-  "Pluma (61–66 kg)",
-  "Ligero (66–70 kg)",
-  "Wélter (70–77 kg)",
-  "Mediano (77–84 kg)",
-  "Semipesado (84–93 kg)",
-  "Pesado (93–120 kg)",
-  "Superpesado (> 120 kg)",
-];
-
 export const MODALIDADES: ModalidadCombate[] = [
   "MMA Pro",
   "MMA Amateur",
@@ -71,11 +58,19 @@ interface EquipoOption {
   nombre: string;
 }
 
+interface CategoriaPesoOption {
+  id: string;
+  nombre: string;
+  limiteInferior: number | null;
+  limiteSuperior: number | null;
+}
+
 interface LuchadorFormProps {
   formId: string;
   initialData?: LuchadorFormData;
   onSubmit: (data: LuchadorFormData) => void;
   isPending?: boolean;
+  categorias: CategoriaPesoOption[];
 }
 
 export function LuchadorForm({
@@ -83,6 +78,7 @@ export function LuchadorForm({
   initialData,
   onSubmit,
   isPending = false,
+  categorias,
 }: LuchadorFormProps) {
   const [form, setForm] = React.useState<LuchadorFormData>(
     initialData || INITIAL_FORM,
@@ -92,7 +88,6 @@ export function LuchadorForm({
   const [isCreatingTeam, setIsCreatingTeam] = React.useState(false);
   const [nuevoEquipo, setNuevoEquipo] = React.useState("");
 
-  // Cargar equipos dinámicamente
   React.useEffect(() => {
     let active = true;
     getEquipos().then((res) => {
@@ -412,11 +407,19 @@ export function LuchadorForm({
               onChange={(e) => setField("categoria", e.target.value)}
             >
               <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-              {CATEGORIAS.map((cat) => (
-                <NativeSelectOption key={cat} value={cat}>
-                  {cat}
-                </NativeSelectOption>
-              ))}
+              {categorias.map((cat) => {
+                const rango =
+                  cat.limiteInferior !== null || cat.limiteSuperior !== null
+                    ? `(${cat.limiteInferior !== null ? cat.limiteInferior : "0"}–${
+                        cat.limiteSuperior !== null ? cat.limiteSuperior : "∞"
+                      } kg)`
+                    : "";
+                return (
+                  <NativeSelectOption key={cat.id} value={cat.id}>
+                    {cat.nombre} {rango}
+                  </NativeSelectOption>
+                );
+              })}
             </NativeSelect>
           </div>
 
