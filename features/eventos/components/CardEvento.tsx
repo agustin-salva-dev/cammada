@@ -8,6 +8,7 @@ import {
   MapPin,
   Calendar,
   Clock,
+  CalendarFold,
   Swords,
   Eye,
   Building2,
@@ -37,6 +38,29 @@ import { ModalEvento, type EventoData } from "./ModalEvento";
 import { ModalDetalleEvento } from "./ModalDetalleEvento";
 import { ESTADO_LABELS, type EstadoEvento } from "../zod";
 
+import type { TipoCombate } from "@/features/combates/zod";
+
+interface CombateSimplificado {
+  id: string;
+  tipo: TipoCombate;
+  peleador1: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    apodo: string | null;
+  };
+  peleador2: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    apodo: string | null;
+  };
+  modalidad: {
+    id: string;
+    nombre: string;
+  };
+}
+
 interface CardEventoProps {
   id: string;
   numero: number;
@@ -48,6 +72,7 @@ interface CardEventoProps {
   calleNumero: string;
   estado: EstadoEvento;
   peleasCount: number;
+  combates?: CombateSimplificado[];
 }
 
 const ESTADO_BADGE_VARIANT: Record<
@@ -81,6 +106,7 @@ export function CardEvento({
   calleNumero,
   estado,
   peleasCount,
+  combates = [],
 }: CardEventoProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
@@ -118,11 +144,14 @@ export function CardEvento({
   };
 
   return (
-    <Card className="group h-fit transition-all duration-300 hover:-translate-y-1 gap-0 py-0 overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between px-4 py-3 bg-linear-to from-primary/5 to-transparent border-b border-border/30">
+    <Card
+      size="sm"
+      className="group h-fit transition-all duration-300 hover:-translate-y-1"
+    >
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border/30">
         <div className="flex items-center gap-3">
           <div className="flex px-2 py-3.5 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-            <Swords />
+            <CalendarFold />
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-wider">
@@ -139,7 +168,7 @@ export function CardEvento({
         />
       </CardHeader>
 
-      <CardContent className="px-4 py-3 flex flex-col gap-2.5">
+      <CardContent className="flex flex-col gap-2.5">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4 shrink-0 text-primary/70" />
           <span>{formatFechaCorta(fecha)}</span>
@@ -172,9 +201,10 @@ export function CardEvento({
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-2 px-4 py-3 border-t border-border/30">
+      <CardFooter className="flex flex-col gap-2 border-t border-border/30">
         <ModalDetalleEvento
           evento={eventoData}
+          combates={combates}
           trigger={
             <Button
               variant="outline"

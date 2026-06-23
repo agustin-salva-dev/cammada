@@ -77,7 +77,8 @@ export default async function Eventos() {
               calle={evento.calle}
               calleNumero={evento.calleNumero}
               estado={evento.estado as EstadoEvento}
-              peleasCount={0}
+              peleasCount={evento._count?.combates ?? 0}
+              combates={evento.combates}
             />
           ))}
         </div>
