@@ -32,43 +32,48 @@ model Equipo {
 }
 
 model CategoriaPeso {
-  id              String     @id @default(uuid())
-  nombre          String     @unique
-  orden           Int        @default(0)
+  id              String      @id @default(uuid())
+  nombre          String      @unique
+  orden           Int         @default(0)
   limiteInferior  Int?
   limiteSuperior  Int?
   luchadores      Luchador[]
-  createdAt       DateTime   @default(now())
+  combates        Combate[]
+  createdAt       DateTime    @default(now())
 }
 
 model Modalidad {
   id        String           @id @default(uuid())
   nombre    String           @unique
   records   RecordLuchador[]
+  combates  Combate[]
   createdAt DateTime         @default(now())
 }
 
 model Luchador {
-  id           String          @id @default(uuid())
-  nombre       String
-  apodo        String
-  apellido     String
-  edad         Int?
-  altura       Int?
-  ultimoPeso   Float?
-  pais         String
-  ciudad       String
-  
-  categoriaId  String
-  categoria    CategoriaPeso   @relation(fields: [categoriaId], references: [id])
-  
-  equipoId     String
-  equipo       Equipo          @relation(fields: [equipoId], references: [id])
-  
-  records      RecordLuchador[]
-  
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id                String           @id @default(uuid())
+  nombre            String
+  apodo             String
+  apellido          String
+  edad              Int?
+  altura            Int?
+  ultimoPeso        Float?
+  pais              String
+  ciudad            String
+
+  categoriaId       String
+  categoria         CategoriaPeso    @relation(fields: [categoriaId], references: [id])
+
+  equipoId          String
+  equipo            Equipo           @relation(fields: [equipoId], references: [id])
+
+  records           RecordLuchador[]
+  combatesComoPel1  Combate[]        @relation("Peleador1Combates")
+  combatesComoPel2  Combate[]        @relation("Peleador2Combates")
+  combatesGanados   Combate[]        @relation("GanadorCombates")
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }
 
 model RecordLuchador {
@@ -94,6 +99,20 @@ enum EstadoEvento {
   CANCELADO
 }
 
+enum TipoCombate {
+  ESTELAR
+  CO_ESTELAR
+  CARTELERA_PRINCIPAL
+  PRELIMINAR
+}
+
+enum EstadoCombate {
+  CANCELADO
+  PROGRAMADO
+  CONFIRMADO
+  FINALIZADO
+}
+
 model Evento {
   id          String       @id @default(uuid())
   numero      Int          @unique
@@ -105,9 +124,48 @@ model Evento {
   calleNumero String
   estado      EstadoEvento @default(PROGRAMADO)
 
-  // Relación futura con peleas:
-  // peleas Pelea[]
+  combates    Combate[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Combate {
+  id              String        @id @default(uuid())
+
+  peleador1Id     String
+  peleador1       Luchador      @relation("Peleador1Combates", fields: [peleador1Id], references: [id])
+
+  peleador2Id     String
+  peleador2       Luchador      @relation("Peleador2Combates", fields: [peleador2Id], references: [id])
+
+  rounds          Int           @default(3)
+  duracionRounds  Int           @default(5)
+
+  eventoId        String
+  evento          Evento        @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+
+  tipo            TipoCombate   @default(PRELIMINAR)
+  numeroPelea     Int           @default(1)
+  horarioEstimado String?
+
+  categoriaPesoId String
+  categoriaPeso   CategoriaPeso @relation(fields: [categoriaPesoId], references: [id])
+
+  modalidadId     String
+  modalidad       Modalidad     @relation(fields: [modalidadId], references: [id])
+
+  titulo          Boolean       @default(false)
+  estado          EstadoCombate @default(PROGRAMADO)
+
+  ganadorId       String?
+  ganador         Luchador?     @relation("GanadorCombates", fields: [ganadorId], references: [id])
+
+  viaVictoria     String?
+  roundFin        Int?
+  minutoFin       Int?
+  segundoFin      Int?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }

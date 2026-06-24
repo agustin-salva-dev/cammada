@@ -21,6 +21,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ESTADO_LABELS, type EstadoEvento } from "../zod";
 
+import type { TipoCombate } from "@/features/combates/zod";
+
+interface CombateSimplificado {
+  id: string;
+  tipo: TipoCombate;
+  peleador1: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    apodo: string | null;
+  };
+  peleador2: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    apodo: string | null;
+  };
+  modalidad: {
+    id: string;
+    nombre: string;
+  };
+}
+
 interface ModalDetalleEventoProps {
   trigger: React.ReactNode;
   evento: {
@@ -33,6 +56,7 @@ interface ModalDetalleEventoProps {
     calleNumero: string;
     estado: EstadoEvento;
   };
+  combates?: CombateSimplificado[];
 }
 
 const ESTADO_BADGE_VARIANT: Record<
@@ -56,10 +80,33 @@ function formatFecha(fechaStr: string): string {
   });
 }
 
+function getFightLabel(combate: CombateSimplificado) {
+  const p1 = combate.peleador1;
+  const p2 = combate.peleador2;
+  const p1Name = p1.apodo ? `${p1.nombre} "${p1.apodo}" ${p1.apellido}` : `${p1.nombre} ${p1.apellido}`;
+  const p2Name = p2.apodo ? `${p2.nombre} "${p2.apodo}" ${p2.apellido}` : `${p2.nombre} ${p2.apellido}`;
+  return `${p1Name} vs ${p2Name}`;
+}
+
 export function ModalDetalleEvento({
   trigger,
   evento,
+  combates = [],
 }: ModalDetalleEventoProps) {
+  const peleaEstelar = combates.find((c) => c.tipo === "ESTELAR");
+  const peleaCoEstelar = combates.find((c) => c.tipo === "CO_ESTELAR");
+  const carteleraPrincipal = combates.filter((c) => c.tipo === "CARTELERA_PRINCIPAL");
+  const preliminares = combates.filter((c) => c.tipo === "PRELIMINAR");
+
+  // Calcular estadísticas por modalidad
+  const modalidadCounts = combates.reduce((acc, c) => {
+    const name = c.modalidad.nombre;
+    acc[name] = (acc[name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const hasModalidades = Object.keys(modalidadCounts).length > 0;
+
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -106,32 +153,52 @@ export function ModalDetalleEvento({
           <section>
             <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <Swords className="h-4 w-4 text-primary" />
-              Cartelera
+              Cartelera ({combates.length} {combates.length === 1 ? "pelea" : "peleas"})
             </h3>
             <div className="grid gap-3">
               <CarteleraSlot
                 icon={<Star className="h-4 w-4 text-yellow-500" />}
                 label="Pelea Estelar"
-                description="Aún no asignada"
-                isEmpty
+                description={
+                  peleaEstelar
+                    ? getFightLabel(peleaEstelar)
+                    : "Aún no asignada"
+                }
+                subDescription={peleaEstelar ? peleaEstelar.modalidad.nombre : undefined}
+                isEmpty={!peleaEstelar}
               />
               <CarteleraSlot
                 icon={<Zap className="h-4 w-4 text-orange-500" />}
                 label="Pelea Co-Estelar"
-                description="Aún no asignada"
-                isEmpty
+                description={
+                  peleaCoEstelar
+                    ? getFightLabel(peleaCoEstelar)
+                    : "Aún no asignada"
+                }
+                subDescription={peleaCoEstelar ? peleaCoEstelar.modalidad.nombre : undefined}
+                isEmpty={!peleaCoEstelar}
               />
               <CarteleraSlot
                 icon={<Trophy className="h-4 w-4 text-blue-500" />}
                 label="Cartelera Principal"
-                description="Sin peleas asignadas"
-                isEmpty
+                description={
+                  carteleraPrincipal.length > 0
+                    ? `${carteleraPrincipal.length} ${carteleraPrincipal.length === 1 ? "pelea asignada" : "peleas asignadas"}`
+                    : "Sin peleas asignadas"
+                }
+                isEmpty={carteleraPrincipal.length === 0}
+                fights={carteleraPrincipal}
               />
               <CarteleraSlot
                 icon={<Swords className="h-4 w-4 text-muted-foreground" />}
                 label="Peleas Preliminares"
-                description="Sin peleas asignadas"
-                isEmpty
+                description={
+                  preliminares.length > 0
+                    ? `${preliminares.length} ${preliminares.length === 1 ? "pelea asignada" : "peleas asignadas"}`
+                    : "Sin peleas asignadas"
+                }
+                isEmpty={preliminares.length === 0}
+                fights={preliminares}
               />
             </div>
           </section>
@@ -140,19 +207,36 @@ export function ModalDetalleEvento({
             <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
               Peleas por modalidad
             </h3>
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
-              <p className="text-sm text-muted-foreground text-center">
-                Las estadísticas por modalidad estarán disponibles una vez que
-                se registren peleas para este evento.
-              </p>
-            </div>
+            {hasModalidades ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {Object.entries(modalidadCounts).map(([name, count]) => (
+                  <div
+                    key={name}
+                    className="flex flex-col gap-1 rounded-lg border border-border/40 bg-muted/10 p-3 text-center"
+                  >
+                    <span className="text-xs text-muted-foreground uppercase font-medium tracking-wider">
+                      {name}
+                    </span>
+                    <span className="text-lg font-bold text-foreground">
+                      {count} {count === 1 ? "pelea" : "peleas"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  Las estadísticas por modalidad estarán disponibles una vez que
+                  se registren peleas para este evento.
+                </p>
+              </div>
+            )}
           </section>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
 function InfoItem({
   icon,
   label,
@@ -181,28 +265,56 @@ function CarteleraSlot({
   icon,
   label,
   description,
+  subDescription,
   isEmpty,
+  fights = [],
 }: {
   icon: React.ReactNode;
   label: string;
   description: string;
+  subDescription?: string;
   isEmpty?: boolean;
+  fights?: CombateSimplificado[];
 }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+      className={`flex flex-col gap-2 rounded-lg border p-3 transition-colors ${
         isEmpty
           ? "border-dashed border-border/50 bg-muted/5"
           : "border-border/40 bg-card"
       }`}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted/30">
-        {icon}
+      <div className="flex items-center gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted/30">
+          {icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-foreground">{label}</p>
+          <p className="text-xs text-muted-foreground">
+            {description}
+            {subDescription && (
+              <span className="text-primary font-medium ml-1.5">
+                • {subDescription}
+              </span>
+            )}
+          </p>
+        </div>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
+
+      {fights.length > 0 && (
+        <div className="pl-11 pr-2 flex flex-col gap-1.5 border-t border-border/30 pt-2 mt-1">
+          {fights.map((f) => (
+            <div key={f.id} className="flex justify-between items-center text-xs">
+              <span className="text-foreground/90 font-medium">
+                {getFightLabel(f)}
+              </span>
+              <span className="text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full text-[10px]">
+                {f.modalidad.nombre}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

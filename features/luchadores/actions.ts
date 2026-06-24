@@ -27,6 +27,25 @@ export async function getLuchadores() {
   }
 }
 
+export async function getLuchadoresSelect() {
+  try {
+    const luchadores = await db.luchador.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        apodo: true,
+      },
+      orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
+    });
+    return { success: true, data: luchadores };
+  } catch (error) {
+    console.error("Error al obtener luchadores para select:", error);
+    return { success: false, error: "No se pudieron cargar los luchadores" };
+  }
+}
+
+
 export async function createLuchador(rawInput: unknown) {
   try {
     const validation = luchadorSchema.safeParse(rawInput);
