@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BadgePlus, Download, Sparkles } from "lucide-react";
-import { IconButtonConfig } from "@/components/layout/DashboardHeader";
+import { IconButtonConfig } from "@/constants/ui";
 import { ModalAgregarLuchador } from "@/components/luchadores/modals/ModalAgregarLuchador";
 import { ModalImportarLuchador } from "@/components/luchadores/modals/ModalImportarLuchador";
 import { getLuchadores } from "@/features/luchadores/actions";

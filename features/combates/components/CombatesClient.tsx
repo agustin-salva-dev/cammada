@@ -26,7 +26,7 @@ import type {
   ModalidadOption,
 } from "./CombateForm";
 import type { CombateDetalleData } from "./ModalDetalleCombate";
-import { IconButtonConfig } from "@/components/layout/DashboardHeader";
+import { IconButtonConfig } from "@/constants/ui";
 
 export type CombateCompleto = CombateDetalleData & {
   id: string;
