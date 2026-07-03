@@ -12,64 +12,128 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useActionState, useEffect } from "react";
+import { loginUser, loginWithGoogle } from "@/features/auth/actions";
+import type { AuthFormState } from "@/features/auth/actions";
 
 export default function LoginCard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const googleError = searchParams.get("error");
 
-  const handleLogin = () => {
-    router.replace(ROUTES.DASHBOARD);
-  };
+  const [state, formAction, isPending] = useActionState<
+    AuthFormState | undefined,
+    FormData
+  >(loginUser, undefined);
+
+  useEffect(() => {
+    if (state?.success) {
+      router.replace(ROUTES.DASHBOARD);
+    }
+  }, [state?.success, router]);
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle>Ingresa a tu cuenta</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Ingresa tu correo para iniciar sesión en tu cuenta
         </CardDescription>
         <CardAction className="flex">
-          <Button variant="ghost" className="text-muted-foreground">
-            Sign Up <ChevronRight />
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => router.push(ROUTES.ADMIN_REGISTER)}
+          >
+            Registrarse <ChevronRight />
           </Button>
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
+        <form id="login-form" action={formAction}>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Correo electrónico</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="tu@correo.com"
                 required
+                disabled={isPending}
               />
+              {state?.errors?.email && (
+                <p className="text-sm text-destructive">
+                  {state.errors.email[0]}
+                </p>
+              )}
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <a
                   href="#"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
-                  Forgot your password?
+                  ¿Olvidaste tu contraseña?
                 </a>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                disabled={isPending}
+              />
+              {state?.errors?.password && (
+                <p className="text-sm text-destructive">
+                  {state.errors.password[0]}
+                </p>
+              )}
             </div>
+            {state?.message && !state.success && (
+              <p className="text-sm text-destructive text-center">
+                {state.message}
+              </p>
+            )}
+            {googleError === "NoAccount" && (
+              <p className="text-sm text-destructive text-center">
+                No existe una cuenta con ese correo de Google. Regístrate
+                primero.
+              </p>
+            )}
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" onClick={handleLogin}>
-          Login
+        <Button
+          type="submit"
+          form="login-form"
+          className="w-full"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="animate-spin" />
+              Ingresando...
+            </>
+          ) : (
+            "Ingresar"
+          )}
         </Button>
-        <Button variant="outline" className="w-full">
-          Login with Google
-        </Button>
+        <form action={loginWithGoogle} className="w-full">
+          <Button
+            type="submit"
+            variant="outline"
+            className="w-full"
+            disabled={isPending}
+          >
+            Iniciar sesión con Google
+          </Button>
+        </form>
       </CardFooter>
     </Card>
   );

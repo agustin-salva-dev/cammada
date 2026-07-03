@@ -6,20 +6,41 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Rol {
-  SUPERADMIN
-  ADMIN
-  AYUDANTE
-}
-
 model Usuario {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String
+  password  String?
   nombre    String
-  rol       Rol      @default(AYUDANTE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  telefono  String?
+  imagen    String?
+  rol       String    @default("AYUDANTE")
+  rolConfig RolConfig @relation(fields: [rol], references: [nombre])
+  cuentas   Cuenta[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Cuenta {
+  id                String  @id @default(uuid())
+  usuarioId         String
+  usuario           Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  proveedor         String
+  proveedorCuentaId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+
+  @@unique([proveedor, proveedorCuentaId])
+}
+
+model RolConfig {
+  id        String   @id @default(uuid())
+  nombre    String   @unique
+  permisos  String[]
+  isSystem  Boolean   @default(false)
+  usuarios  Usuario[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Equipo {
