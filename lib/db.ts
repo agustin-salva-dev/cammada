@@ -23,7 +23,6 @@ if (typeof window === "undefined") {
     }
   }
 } else {
-  // Client-side fallback if imported on client (though it shouldn't be used directly there)
   prismaInstance = null as unknown as PrismaClient;
 }
 

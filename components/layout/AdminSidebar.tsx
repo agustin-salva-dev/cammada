@@ -169,7 +169,10 @@ export default function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Cerrar sesión">
+            <SidebarMenuButton tooltip="Cerrar sesión" onClick={async () => {
+              const { logoutUser } = await import("@/features/auth/actions");
+              await logoutUser();
+            }}>
               <LogOut />
               <span>Cerrar sesión</span>
             </SidebarMenuButton>
