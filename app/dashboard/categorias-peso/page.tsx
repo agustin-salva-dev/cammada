@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BadgePlus, Scale, Plus } from "lucide-react";
-import { IconButtonConfig } from "@/components/layout/DashboardHeader";
+import { IconButtonConfig } from "@/constants/ui";
 import { getCategoriasPeso } from "@/features/categorias-peso/actions";
 import { CardCategoriaPeso } from "@/features/categorias-peso/components/CardCategoriaPeso";
 import { ModalCategoriaPeso } from "@/features/categorias-peso/components/ModalCategoriaPeso";

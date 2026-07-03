@@ -7,10 +7,8 @@ import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { auth } from "@/lib/auth";
 
-export const IconButtonConfig = {
-  size: 20,
-  strokeWidth: 1.5,
-};
+import { IconButtonConfig } from "@/constants/ui";
+
 
 export async function DashboardHeader() {
   const session = await auth();

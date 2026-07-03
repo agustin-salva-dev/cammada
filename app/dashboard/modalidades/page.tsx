@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BadgePlus, Medal, Plus } from "lucide-react";
-import { IconButtonConfig } from "@/components/layout/DashboardHeader";
+import { IconButtonConfig } from "@/constants/ui";
 import { getModalidades } from "@/features/modalidades/actions";
 import { CardModalidad } from "@/features/modalidades/components/CardModalidad";
 import { ModalModalidad } from "@/features/modalidades/components/ModalModalidad";

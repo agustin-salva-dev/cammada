@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BadgePlus, Download, Users, Plus } from "lucide-react";
-import { IconButtonConfig } from "@/components/layout/DashboardHeader";
+import { IconButtonConfig } from "@/constants/ui";
 import { getEquipos } from "@/features/equipos/actions";
 import { CardEquipo } from "@/features/equipos/components/CardEquipo";
 import { ModalEquipo } from "@/features/equipos/components/ModalEquipo";
