@@ -35,6 +35,8 @@ export async function getLuchadoresSelect() {
         nombre: true,
         apellido: true,
         apodo: true,
+        categoriaId: true,
+        equipo: { select: { nombre: true } },
       },
       orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
     });
@@ -44,7 +46,6 @@ export async function getLuchadoresSelect() {
     return { success: false, error: "No se pudieron cargar los luchadores" };
   }
 }
-
 
 export async function createLuchador(rawInput: unknown) {
   try {
@@ -68,7 +69,6 @@ export async function createLuchador(rawInput: unknown) {
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
-      // Obtener o crear Equipo
       const dbEquipo = await tx.equipo.upsert({
         where: { nombre: equipo },
         update: {},
@@ -79,7 +79,6 @@ export async function createLuchador(rawInput: unknown) {
         throw new Error("La categoría de peso es obligatoria");
       }
 
-      // Crear Luchador
       const luchador = await tx.luchador.create({
         data: {
           nombre,
@@ -95,7 +94,6 @@ export async function createLuchador(rawInput: unknown) {
         },
       });
 
-      // Crear los registros de modalidad
       if (records && records.length > 0) {
         for (const record of records) {
           const modalidadNombre = record.modalidad || "Sin modalidad";
@@ -150,7 +148,6 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     const { edad, altura, ultimoPeso, records } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
-      // Obtener o crear Equipo
       const dbEquipo = await tx.equipo.upsert({
         where: { nombre: equipo },
         update: {},
@@ -161,7 +158,6 @@ export async function updateLuchador(id: string, rawInput: unknown) {
         throw new Error("La categoría de peso es obligatoria");
       }
 
-      // Actualizar Luchador
       const luchador = await tx.luchador.update({
         where: { id },
         data: {
@@ -178,7 +174,6 @@ export async function updateLuchador(id: string, rawInput: unknown) {
         },
       });
 
-      // Actualizar Récords
       await tx.recordLuchador.deleteMany({
         where: { luchadorId: id },
       });
@@ -237,7 +232,6 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       };
     }
 
-    // Extraer el slug de la URL si ingresó la URL completa
     let slug = slugOrUrl.split("?")[0].replace(/\/+$/, "");
     if (slug.includes("/fighters/")) {
       const parts = slug.split("/fighters/");
@@ -289,7 +283,6 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       };
     }
 
-    // Mapear peso de lbs a kg
     let pesoKg: number | undefined;
     if (data.last_weigh_in) {
       const lbsMatch = data.last_weigh_in.match(/(\d+(?:\.\d+)?)\s*lbs/i);
@@ -301,7 +294,6 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       }
     }
 
-    // Mapear categoría de peso en inglés a los nombres en español
     const TAPOLOGY_WEIGHT_MAP: Record<string, string> = {
       strawweight: "Paja",
       flyweight: "Mosca",
@@ -338,7 +330,6 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       }
     }
 
-    // Generar el record inicial sin modalidad asignada
     const initialRecord = {
       id: crypto.randomUUID(),
       modalidad: "" as const,
