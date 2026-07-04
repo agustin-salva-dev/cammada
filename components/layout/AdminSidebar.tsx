@@ -16,6 +16,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { CammadaLogo } from "@/components/layout/CammadaLogo";
+import { ModalConfirmacion } from "@/components/ui/ModalConfirmacion";
 import {
   LayoutDashboard,
   Users,
@@ -169,13 +170,23 @@ export default function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Cerrar sesión" onClick={async () => {
-              const { logoutUser } = await import("@/features/auth/actions");
-              await logoutUser();
-            }}>
-              <LogOut />
-              <span>Cerrar sesión</span>
-            </SidebarMenuButton>
+            <ModalConfirmacion
+              title="¿Cerrar sesión?"
+              description="¿Estás seguro de que deseas cerrar tu sesión actual? Tendrás que volver a ingresar tus credenciales para acceder."
+              confirmText="Cerrar sesión"
+              cancelText="Cancelar"
+              onConfirm={async () => {
+                const { logoutUser } = await import("@/features/auth/actions");
+                await logoutUser();
+              }}
+              variant="destructive"
+              trigger={
+                <SidebarMenuButton tooltip="Cerrar sesión">
+                  <LogOut />
+                  <span>Cerrar sesión</span>
+                </SidebarMenuButton>
+              }
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

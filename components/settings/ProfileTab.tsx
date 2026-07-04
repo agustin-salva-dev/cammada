@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { updateProfileName } from "@/features/settings/actions";
 import { logoutUser } from "@/features/auth/actions";
+import { ModalConfirmacion } from "@/components/ui/ModalConfirmacion";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -167,20 +168,21 @@ export function ProfileTab({ profile }: { profile: UserProfile }) {
                 Serás redirigido a la página de inicio de sesión
               </p>
             </div>
-            <Button
+            <ModalConfirmacion
+              title="¿Cerrar sesión?"
+              description="¿Estás seguro de que deseas cerrar tu sesión actual? Tendrás que volver a ingresar tus credenciales para acceder."
+              confirmText="Cerrar sesión"
+              cancelText="Cancelar"
+              onConfirm={handleLogout}
               variant="destructive"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
+              isLoading={isLoggingOut}
+              trigger={
+                <Button variant="destructive" disabled={isLoggingOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Cerrar sesión
-                </>
-              )}
-            </Button>
+                </Button>
+              }
+            />
           </div>
         </CardContent>
       </Card>
