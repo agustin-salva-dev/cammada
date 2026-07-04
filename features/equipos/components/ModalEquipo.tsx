@@ -24,12 +24,22 @@ export interface EquipoData {
 }
 
 interface ModalEquipoProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   equipo?: EquipoData;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ModalEquipo({ trigger, equipo }: ModalEquipoProps) {
-  const [open, setOpen] = React.useState(false);
+export function ModalEquipo({
+  trigger,
+  equipo,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: ModalEquipoProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
+
   const [isPending, startTransition] = React.useTransition();
 
   const isEditing = !!equipo;
@@ -63,7 +73,7 @@ export function ModalEquipo({ trigger, equipo }: ModalEquipoProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="sm:max-w-lg flex flex-col gap-0 p-0"

@@ -29,12 +29,22 @@ export interface EventoData {
 }
 
 interface ModalEventoProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   evento?: EventoData;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ModalEvento({ trigger, evento }: ModalEventoProps) {
-  const [open, setOpen] = React.useState(false);
+export function ModalEvento({
+  trigger,
+  evento,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: ModalEventoProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
+
   const [isPending, startTransition] = React.useTransition();
 
   const isEditing = !!evento;
@@ -68,7 +78,7 @@ export function ModalEvento({ trigger, evento }: ModalEventoProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="sm:max-w-lg flex flex-col gap-0 p-0"

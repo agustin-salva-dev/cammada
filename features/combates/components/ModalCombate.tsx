@@ -44,12 +44,14 @@ export interface CombateData {
 }
 
 interface ModalCombateProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   combate?: CombateData;
   luchadores: LuchadorOption[];
   eventos: EventoOption[];
   categorias: CategoriaOption[];
   modalidades: ModalidadOption[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function ModalCombate({
@@ -59,8 +61,13 @@ export function ModalCombate({
   eventos,
   categorias,
   modalidades,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: ModalCombateProps) {
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
+
   const [isPending, startTransition] = React.useTransition();
 
   const isEditing = !!combate;
@@ -116,7 +123,7 @@ export function ModalCombate({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="sm:max-w-2xl flex flex-col gap-0 p-0"

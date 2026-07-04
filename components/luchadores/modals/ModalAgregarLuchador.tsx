@@ -19,7 +19,9 @@ import { getCategoriasPesoSelect } from "@/features/categorias-peso/actions";
 import { getModalidadesSelect } from "@/features/modalidades/actions";
 
 interface ModalAgregarLuchadorProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSubmit?: (data: LuchadorFormData) => void;
 }
 
@@ -37,9 +39,14 @@ interface ModalidadOption {
 
 export function ModalAgregarLuchador({
   trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
   onSubmit,
 }: ModalAgregarLuchadorProps) {
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
+
   const [isPending, startTransition] = React.useTransition();
   const [categorias, setCategorias] = React.useState<CategoriaPesoOption[]>([]);
   const [modalidades, setModalidades] = React.useState<ModalidadOption[]>([]);
@@ -87,7 +94,7 @@ export function ModalAgregarLuchador({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className="sm:max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col gap-0 p-0"
