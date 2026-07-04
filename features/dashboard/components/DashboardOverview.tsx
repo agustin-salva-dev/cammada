@@ -48,21 +48,23 @@ const ESTADO_BADGE_VARIANT: Record<
 
 function formatFecha(fechaStr: string | Date): string {
   const date = new Date(fechaStr);
-  return date.toLocaleDateString("es-AR", {
+  return new Intl.DateTimeFormat("es-AR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
     year: "numeric",
-  });
+    timeZone: "UTC",
+  }).format(date);
 }
 
 function formatFechaCorta(fechaStr: string | Date): string {
   const date = new Date(fechaStr);
-  return date.toLocaleDateString("es-AR", {
+  return new Intl.DateTimeFormat("es-AR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  });
+    timeZone: "UTC",
+  }).format(date);
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────
