@@ -60,6 +60,7 @@ model CategoriaPeso {
   limiteSuperior  Int?
   luchadores      Luchador[]
   combates        Combate[]
+  rankings        Ranking[]
   createdAt       DateTime    @default(now())
 }
 
@@ -68,6 +69,7 @@ model Modalidad {
   nombre    String           @unique
   records   RecordLuchador[]
   combates  Combate[]
+  rankings  Ranking[]
   createdAt DateTime         @default(now())
 }
 
@@ -88,10 +90,12 @@ model Luchador {
   equipoId          String
   equipo            Equipo           @relation(fields: [equipoId], references: [id])
 
-  records           RecordLuchador[]
-  combatesComoPel1  Combate[]        @relation("Peleador1Combates")
-  combatesComoPel2  Combate[]        @relation("Peleador2Combates")
-  combatesGanados   Combate[]        @relation("GanadorCombates")
+  records             RecordLuchador[]
+  combatesComoPel1    Combate[]        @relation("Peleador1Combates")
+  combatesComoPel2    Combate[]        @relation("Peleador2Combates")
+  combatesGanados     Combate[]        @relation("GanadorCombates")
+  rankingItems        RankingItem[]
+  rankingsComoChampion Ranking[]      @relation("CampeonRanking")
 
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -189,4 +193,33 @@ model Combate {
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+model Ranking {
+  id              String         @id @default(uuid())
+  categoriaPesoId String?
+  categoriaPeso   CategoriaPeso? @relation(fields: [categoriaPesoId], references: [id], onDelete: Cascade)
+  modalidadId     String
+  modalidad       Modalidad      @relation(fields: [modalidadId], references: [id], onDelete: Cascade)
+  items           RankingItem[]
+  campeonId       String?
+  campeon         Luchador?      @relation("CampeonRanking", fields: [campeonId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([categoriaPesoId, modalidadId])
+}
+
+model RankingItem {
+  id         String   @id @default(uuid())
+  rankingId  String
+  ranking    Ranking  @relation(fields: [rankingId], references: [id], onDelete: Cascade)
+  luchadorId String
+  luchador   Luchador @relation(fields: [luchadorId], references: [id], onDelete: Cascade)
+  posicion   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([rankingId, luchadorId])
+  @@unique([rankingId, posicion])
 }
