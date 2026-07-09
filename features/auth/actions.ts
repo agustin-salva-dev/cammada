@@ -18,15 +18,10 @@ export type AuthFormState = {
 const AUTH_FLOW_COOKIE = "auth_flow";
 const AUTH_FLOW_MAX_AGE = 600;
 
-// ─────────────────────────────────────────────────────────────
-// Register — restricted to SUPERADMIN and ADMIN only
-// ─────────────────────────────────────────────────────────────
-
 export async function registerUser(
   _prevState: AuthFormState | undefined,
   formData: FormData,
 ): Promise<AuthFormState> {
-  // Only authenticated admins can create new accounts.
   try {
     await requireAdmin();
   } catch (error) {
@@ -34,7 +29,8 @@ export async function registerUser(
     if (authError) {
       return {
         success: false,
-        message: "No tienes permisos para registrar usuarios. Debes estar autenticado como SUPERADMIN o ADMIN.",
+        message:
+          "No tienes permisos para registrar usuarios. Debes estar autenticado como SUPERADMIN o ADMIN.",
       };
     }
     throw error;
@@ -96,17 +92,13 @@ export async function registerUser(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Login — rate-limited by IP
-// ─────────────────────────────────────────────────────────────
-
 export async function loginUser(
   _prevState: AuthFormState | undefined,
   formData: FormData,
 ): Promise<AuthFormState> {
-  // Rate limiting: 10 attempts per 15-minute window per IP.
   const headerStore = await headers();
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  const ip =
+    headerStore.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
   const rateLimit = checkRateLimit(`login:${ip}`);
 
   if (!rateLimit.allowed) {
@@ -160,10 +152,6 @@ export async function loginUser(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Google OAuth — login
-// ─────────────────────────────────────────────────────────────
-
 export async function loginWithGoogle() {
   const cookieStore = await cookies();
   cookieStore.set(AUTH_FLOW_COOKIE, "login", {
@@ -176,12 +164,7 @@ export async function loginWithGoogle() {
   await signIn("google", { redirectTo: "/dashboard" });
 }
 
-// ─────────────────────────────────────────────────────────────
-// Google OAuth — register (restricted to SUPERADMIN/ADMIN)
-// ─────────────────────────────────────────────────────────────
-
 export async function registerWithGoogle() {
-  // Only authenticated admins can initiate the Google registration flow.
   await requireAdmin();
 
   const cookieStore = await cookies();
@@ -194,10 +177,6 @@ export async function registerWithGoogle() {
   });
   await signIn("google", { redirectTo: "/dashboard" });
 }
-
-// ─────────────────────────────────────────────────────────────
-// Logout
-// ─────────────────────────────────────────────────────────────
 
 export async function logoutUser() {
   await signOut({ redirectTo: "/admin" });

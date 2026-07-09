@@ -7,11 +7,9 @@ export default async function RegisterPage() {
   const session = await auth();
   const role = session?.user?.role;
 
-  // Only authenticated SUPERADMIN or ADMIN can access this page.
   const isAllowed = role === "SUPERADMIN" || role === "ADMIN";
 
   if (!isAllowed) {
-    // Pass an error code so LoginCard can display the appropriate toast.
     const reason = session ? "Unauthorized" : "Unauthenticated";
     redirect(`/admin?error=${reason}`);
   }

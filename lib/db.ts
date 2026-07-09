@@ -12,8 +12,12 @@ if (typeof window === "undefined") {
   if (globalForPrisma.prisma) {
     prismaInstance = globalForPrisma.prisma;
   } else {
+    const isProduction = process.env.NODE_ENV === "production";
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
+      max: isProduction ? 2 : undefined,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 2_000,
     });
     const adapter = new PrismaPg(pool);
     prismaInstance = new PrismaClient({ adapter });
