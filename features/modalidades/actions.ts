@@ -3,8 +3,15 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { modalidadSchema } from "./zod";
+import type { Prisma } from "@prisma/client";
+import type { ActionResult } from "@/lib/types";
 
-export async function getModalidades() {
+type ModalidadSelect = { id: string; nombre: string };
+type ModalidadConCount = Prisma.ModalidadGetPayload<{
+  include: { _count: { select: { records: true } } };
+}>;
+
+export async function getModalidades(): Promise<ActionResult<ModalidadConCount[]>> {
   try {
     const modalidades = await db.modalidad.findMany({
       include: {
@@ -23,7 +30,7 @@ export async function getModalidades() {
   }
 }
 
-export async function getModalidadesSelect() {
+export async function getModalidadesSelect(): Promise<ActionResult<ModalidadSelect[]>> {
   try {
     const modalidades = await db.modalidad.findMany({
       select: {

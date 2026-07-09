@@ -3,8 +3,21 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { categoriaPesoSchema } from "./zod";
+import type { Prisma } from "@prisma/client";
+import type { ActionResult } from "@/lib/types";
 
-export async function getCategoriasPeso() {
+type CategoriaPesoConCount = Prisma.CategoriaPesoGetPayload<{
+  include: { _count: { select: { luchadores: true } } };
+}>;
+
+type CategoriaPesoSelect = {
+  id: string;
+  nombre: string;
+  limiteInferior: number | null;
+  limiteSuperior: number | null;
+};
+
+export async function getCategoriasPeso(): Promise<ActionResult<CategoriaPesoConCount[]>> {
   try {
     const categorias = await db.categoriaPeso.findMany({
       include: {
@@ -26,7 +39,7 @@ export async function getCategoriasPeso() {
   }
 }
 
-export async function getCategoriasPesoSelect() {
+export async function getCategoriasPesoSelect(): Promise<ActionResult<CategoriaPesoSelect[]>> {
   try {
     const categorias = await db.categoriaPeso.findMany({
       select: {

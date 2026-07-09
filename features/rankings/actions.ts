@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { rankingSchema } from "./zod";
+import type { ActionResult } from "@/lib/types";
 
 const TOP_LIMIT = 15;
 
@@ -40,7 +41,7 @@ export type RankingConDetalle = {
   totalItems: number;
 };
 
-export async function getRankings() {
+export async function getRankings(): Promise<ActionResult<RankingConDetalle[]>> {
   try {
     const rankings = await db.ranking.findMany({
       include: {

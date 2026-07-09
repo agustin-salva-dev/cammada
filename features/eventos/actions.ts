@@ -3,10 +3,12 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { eventoSchema } from "./zod";
+import type { ActionResult } from "@/lib/types";
+import type { EventoConDetalle } from "./types";
 
 const DASHBOARD_EVENTOS_PATH = "/dashboard/eventos";
 
-export async function getEventos() {
+export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
   try {
     const eventos = await db.evento.findMany({
       orderBy: { numero: "desc" },
