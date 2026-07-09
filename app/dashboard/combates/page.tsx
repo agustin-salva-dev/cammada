@@ -32,7 +32,9 @@ export default async function CombatesPage() {
 
   const eventos =
     eventosResult.success && eventosResult.data
-      ? eventosResult.data.map((e) => ({ id: e.id, numero: e.numero }))
+      ? (eventosResult.data as Array<{ id: string; numero: number }>).map(
+          (e) => ({ id: e.id, numero: e.numero }),
+        )
       : [];
 
   const categorias =
