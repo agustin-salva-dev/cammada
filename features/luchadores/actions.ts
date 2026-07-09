@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { luchadorSchema } from "./zod";
 import { revalidatePath } from "next/cache";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
 
 type LuchadorConDetalle = Prisma.LuchadorGetPayload<{

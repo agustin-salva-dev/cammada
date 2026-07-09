@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { equipoSchema } from "./zod";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
 
 type EquipoConCount = Prisma.EquipoGetPayload<{
