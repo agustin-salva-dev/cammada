@@ -32,6 +32,8 @@ jobs:
       NEXTAUTH_URL: "http://localhost:3000"
       NEXTAUTH_SECRET: "ci-testing-secret-key-for-automated-tests"
       NODE_ENV: test
+      TEST_USER_EMAIL: "user@test.com"
+      TEST_USER_PASSWORD: "testuser123!"
 
     steps:
       - name: Checkout repository
@@ -56,6 +58,9 @@ jobs:
 
       - name: Run Prisma migrations on test database
         run: pnpm prisma db push
+
+      - name: Seed database with test user and default roles
+        run: npx tsx prisma/seed.ts
 
       - name: Run Unit & Integration Tests (Vitest)
         run: pnpm test:unit

@@ -27,6 +27,28 @@ async function main() {
     console.log(`  ✅ Role "${roleName}" seeded with ${permissions.length} permissions`);
   }
 
+  console.log("🌱 Seeding default admin user...");
+  const email = process.env.TEST_USER_EMAIL || "user@test.com";
+  const password = process.env.TEST_USER_PASSWORD || "testuser123!";
+  
+  const bcrypt = await import("bcryptjs");
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  await prisma.usuario.upsert({
+    where: { email },
+    update: {
+      password: hashedPassword,
+      rol: "SUPERADMIN",
+    },
+    create: {
+      email,
+      nombre: "Administrador de Pruebas",
+      password: hashedPassword,
+      rol: "SUPERADMIN",
+    },
+  });
+  console.log(`  ✅ Admin user "${email}" seeded successfully`);
+
   console.log("🌱 Seeding complete!");
 
   await prisma.$disconnect();
