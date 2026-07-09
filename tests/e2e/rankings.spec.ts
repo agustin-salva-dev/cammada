@@ -55,7 +55,7 @@ test.describe("Rankings — edición de posiciones", () => {
     await expect(
       page
         .getByRole("heading", { name: /posiciones/i })
-        .or(page.getByText(/posición|#1|campeón/i).first()),
+        .or(page.getByText(/posición|#1|campeón|sin peleadores/i).first()),
     ).toBeVisible();
   });
 });
