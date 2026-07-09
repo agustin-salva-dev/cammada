@@ -1,0 +1,2 @@
+# El directorio .auth contiene el estado de sesión generado por Playwright auth.setup.ts
+# No debe commitearse ya que contiene tokens de sesión reales
