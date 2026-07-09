@@ -5,11 +5,15 @@ import { revalidatePath } from "next/cache";
 import { eventoSchema } from "./zod";
 import type { ActionResult } from "@/lib/types";
 import type { EventoConDetalle } from "./types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 const DASHBOARD_EVENTOS_PATH = "/dashboard/eventos";
 
 export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
   try {
+    await requirePermission(PERMISSIONS.EVENTOS.VER);
+
     const eventos = await db.evento.findMany({
       orderBy: { numero: "desc" },
       include: {
@@ -49,6 +53,8 @@ export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
     });
     return { success: true, data: eventos };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener eventos:", error);
     return { success: false, error: "No se pudieron cargar los eventos" };
   }
@@ -56,6 +62,8 @@ export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
 
 export async function getEventoById(id: string) {
   try {
+    await requirePermission(PERMISSIONS.EVENTOS.VER);
+
     const evento = await db.evento.findUnique({
       where: { id },
     });
@@ -64,6 +72,8 @@ export async function getEventoById(id: string) {
     }
     return { success: true, data: evento };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener evento:", error);
     return { success: false, error: "No se pudo obtener el evento" };
   }
@@ -71,6 +81,8 @@ export async function getEventoById(id: string) {
 
 export async function createEvento(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.EVENTOS.CREAR);
+
     const validation = eventoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -107,6 +119,8 @@ export async function createEvento(rawInput: unknown) {
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true, data: evento };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -125,6 +139,8 @@ export async function createEvento(rawInput: unknown) {
 
 export async function updateEvento(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.EVENTOS.EDITAR);
+
     const validation = eventoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -162,6 +178,8 @@ export async function updateEvento(id: string, rawInput: unknown) {
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true, data: evento };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -180,6 +198,8 @@ export async function updateEvento(id: string, rawInput: unknown) {
 
 export async function deleteEvento(id: string) {
   try {
+    await requirePermission(PERMISSIONS.EVENTOS.ELIMINAR);
+
     const evento = await db.evento.findUnique({
       where: { id },
     });
@@ -195,6 +215,8 @@ export async function deleteEvento(id: string) {
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar evento:", error);
     return { success: false, error: "No se pudo eliminar el evento" };
   }

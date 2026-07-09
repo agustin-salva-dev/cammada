@@ -5,6 +5,8 @@ import { luchadorSchema } from "./zod";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 type LuchadorConDetalle = Prisma.LuchadorGetPayload<{
   include: {
@@ -25,6 +27,8 @@ type LuchadorSelect = {
 
 export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]>> {
   try {
+    await requirePermission(PERMISSIONS.LUCHADORES.VER);
+
     const luchadores = await db.luchador.findMany({
       include: {
         categoria: true,
@@ -41,6 +45,8 @@ export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]
     });
     return { success: true, data: luchadores };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener luchadores:", error);
     return { success: false, error: "No se pudieron cargar los luchadores" };
   }
@@ -48,6 +54,8 @@ export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]
 
 export async function getLuchadoresSelect(): Promise<ActionResult<LuchadorSelect[]>> {
   try {
+    await requirePermission(PERMISSIONS.LUCHADORES.VER);
+
     const luchadores = await db.luchador.findMany({
       select: {
         id: true,
@@ -61,6 +69,8 @@ export async function getLuchadoresSelect(): Promise<ActionResult<LuchadorSelect
     });
     return { success: true, data: luchadores };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener luchadores para select:", error);
     return { success: false, error: "No se pudieron cargar los luchadores" };
   }
@@ -68,6 +78,8 @@ export async function getLuchadoresSelect(): Promise<ActionResult<LuchadorSelect
 
 export async function createLuchador(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.LUCHADORES.CREAR);
+
     const validation = luchadorSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -140,6 +152,8 @@ export async function createLuchador(rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al crear luchador:", error);
     return { success: false, error: "No se pudo crear el luchador" };
   }
@@ -147,6 +161,8 @@ export async function createLuchador(rawInput: unknown) {
 
 export async function updateLuchador(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.LUCHADORES.EDITAR);
+
     const validation = luchadorSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -224,6 +240,8 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al editar luchador:", error);
     return { success: false, error: "No se pudo editar el luchador" };
   }
@@ -231,12 +249,16 @@ export async function updateLuchador(id: string, rawInput: unknown) {
 
 export async function deleteLuchador(id: string) {
   try {
+    await requirePermission(PERMISSIONS.LUCHADORES.ELIMINAR);
+
     await db.luchador.delete({
       where: { id },
     });
     revalidatePath("/dashboard/luchadores");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar luchador:", error);
     return { success: false, error: "No se pudo eliminar el luchador" };
   }
@@ -244,6 +266,9 @@ export async function deleteLuchador(id: string) {
 
 export async function fetchTapologyFighter(slugOrUrl: string) {
   try {
+    // Requires at minimum the permission to view/create fighters to use this lookup tool.
+    await requirePermission(PERMISSIONS.LUCHADORES.VER);
+
     if (!slugOrUrl) {
       return {
         success: false,
@@ -372,6 +397,8 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
 
     return { success: true, data: mappedFighter };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener luchador de Tapology:", error);
     return {
       success: false,

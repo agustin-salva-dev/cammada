@@ -1,27 +1,16 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { SYSTEM_ROLES } from "@/constants/permissions";
+import {
+  getAuthenticatedUser,
+  requireAdmin,
+  toAuthError,
+} from "@/lib/action-guard";
 
-async function getAuthenticatedUser() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("No autenticado");
-  }
-  return session.user;
-}
-
-function assertCanManageAccounts(currentUserRole: string) {
-  if (currentUserRole !== "SUPERADMIN" && currentUserRole !== "ADMIN") {
-    throw new Error("No tienes permisos para gestionar cuentas");
-  }
-}
-
+/** ADMIN cannot target a SUPERADMIN for role changes. */
 function assertCanManageRole(currentUserRole: string, targetUserRole: string) {
-  assertCanManageAccounts(currentUserRole);
-
   if (currentUserRole === "ADMIN" && targetUserRole === "SUPERADMIN") {
     throw new Error("No tienes permisos para modificar un SUPERADMIN");
   }
@@ -85,8 +74,7 @@ export async function getCurrentUserProfile() {
 }
 
 export async function getAllUsers() {
-  const user = await getAuthenticatedUser();
-  assertCanManageAccounts(user.role);
+  await requireAdmin();
 
   try {
     const usuarios = await db.usuario.findMany({
@@ -115,8 +103,7 @@ export async function getAllUsers() {
 }
 
 export async function deleteUser(userId: string) {
-  const currentUser = await getAuthenticatedUser();
-  assertCanManageAccounts(currentUser.role);
+  const currentUser = await requireAdmin();
 
   if (currentUser.id === userId) {
     return { success: false, error: "No puedes eliminar tu propia cuenta" };
@@ -138,6 +125,8 @@ export async function deleteUser(userId: string) {
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (error instanceof Error && error.message.includes("permisos")) {
       return { success: false, error: error.message };
     }
@@ -147,8 +136,7 @@ export async function deleteUser(userId: string) {
 }
 
 export async function updateUserRole(userId: string, newRole: string) {
-  const currentUser = await getAuthenticatedUser();
-  assertCanManageAccounts(currentUser.role);
+  const currentUser = await requireAdmin();
 
   if (currentUser.id === userId) {
     return { success: false, error: "No puedes cambiar tu propio rol" };
@@ -189,6 +177,8 @@ export async function updateUserRole(userId: string, newRole: string) {
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (error instanceof Error && error.message.includes("permisos")) {
       return { success: false, error: error.message };
     }
@@ -198,8 +188,7 @@ export async function updateUserRole(userId: string, newRole: string) {
 }
 
 export async function getRolesConfig() {
-  const user = await getAuthenticatedUser();
-  assertCanManageAccounts(user.role);
+  await requireAdmin();
 
   try {
     const roles = await db.rolConfig.findMany({
@@ -213,8 +202,7 @@ export async function getRolesConfig() {
 }
 
 export async function createCustomRole(name: string) {
-  const user = await getAuthenticatedUser();
-  assertCanManageAccounts(user.role);
+  await requireAdmin();
 
   const trimmed = name.trim().toUpperCase();
 
@@ -262,8 +250,7 @@ export async function updateRolePermissions(
   roleName: string,
   permissions: string[],
 ) {
-  const user = await getAuthenticatedUser();
-  assertCanManageAccounts(user.role);
+  const user = await requireAdmin();
 
   if (roleName === "SUPERADMIN") {
     return {
@@ -293,8 +280,7 @@ export async function updateRolePermissions(
 }
 
 export async function deleteCustomRole(roleName: string) {
-  const user = await getAuthenticatedUser();
-  assertCanManageAccounts(user.role);
+  await requireAdmin();
 
   if ((SYSTEM_ROLES as readonly string[]).includes(roleName)) {
     return { success: false, error: "No se pueden eliminar roles del sistema" };

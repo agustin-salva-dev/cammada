@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { combateSchema } from "./zod";
 import type { ActionResult } from "@/lib/types";
 import type { CombateConDetalle } from "./types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 const DASHBOARD_COMBATES_PATH = "/dashboard/combates";
 
@@ -19,12 +21,16 @@ const COMBATE_INCLUDE = {
 
 export async function getCombates(): Promise<ActionResult<CombateConDetalle[]>> {
   try {
+    await requirePermission(PERMISSIONS.COMBATES.VER);
+
     const combates = await db.combate.findMany({
       include: COMBATE_INCLUDE,
       orderBy: [{ evento: { numero: "desc" } }, { numeroPelea: "asc" }],
     });
     return { success: true, data: combates };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener combates:", error);
     return { success: false, error: "No se pudieron cargar los combates" };
   }
@@ -32,6 +38,8 @@ export async function getCombates(): Promise<ActionResult<CombateConDetalle[]>> 
 
 export async function createCombate(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.COMBATES.CREAR);
+
     const validation = combateSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -69,6 +77,8 @@ export async function createCombate(rawInput: unknown) {
     revalidatePath(DASHBOARD_COMBATES_PATH);
     return { success: true, data: combate };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al crear combate:", error);
     return { success: false, error: "No se pudo crear el combate" };
   }
@@ -76,6 +86,8 @@ export async function createCombate(rawInput: unknown) {
 
 export async function updateCombate(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.COMBATES.EDITAR);
+
     const validation = combateSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -114,6 +126,8 @@ export async function updateCombate(id: string, rawInput: unknown) {
     revalidatePath(DASHBOARD_COMBATES_PATH);
     return { success: true, data: combate };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al actualizar combate:", error);
     return { success: false, error: "No se pudo actualizar el combate" };
   }
@@ -121,6 +135,8 @@ export async function updateCombate(id: string, rawInput: unknown) {
 
 export async function deleteCombate(id: string) {
   try {
+    await requirePermission(PERMISSIONS.COMBATES.ELIMINAR);
+
     const combate = await db.combate.findUnique({ where: { id } });
 
     if (!combate) {
@@ -132,6 +148,8 @@ export async function deleteCombate(id: string) {
     revalidatePath(DASHBOARD_COMBATES_PATH);
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar combate:", error);
     return { success: false, error: "No se pudo eliminar el combate" };
   }

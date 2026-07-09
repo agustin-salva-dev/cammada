@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { getAuthenticatedUser } from "@/lib/action-guard";
 
 interface LuchadorResumen {
   id: string;
@@ -114,6 +115,7 @@ export async function getDashboardData(
   { success: true; data: DashboardData } | { success: false; error: string }
 > {
   try {
+    await getAuthenticatedUser();
     const evento = eventoId
       ? await db.evento.findUnique({
           where: { id: eventoId },
@@ -307,6 +309,7 @@ export async function getEventosDropdownList(): Promise<
   | { success: false; error: string }
 > {
   try {
+    await getAuthenticatedUser();
     const eventos = await db.evento.findMany({
       select: {
         id: true,

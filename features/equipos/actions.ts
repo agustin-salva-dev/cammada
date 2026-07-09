@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { equipoSchema } from "./zod";
 import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 type EquipoConCount = Prisma.EquipoGetPayload<{
   include: { _count: { select: { luchadores: true } } };
@@ -12,6 +14,8 @@ type EquipoConCount = Prisma.EquipoGetPayload<{
 
 export async function getEquipos(): Promise<ActionResult<EquipoConCount[]>> {
   try {
+    await requirePermission(PERMISSIONS.EQUIPOS.VER);
+
     const equipos = await db.equipo.findMany({
       include: {
         _count: {
@@ -24,6 +28,8 @@ export async function getEquipos(): Promise<ActionResult<EquipoConCount[]>> {
     });
     return { success: true, data: equipos };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener equipos:", error);
     return { success: false, error: "No se pudieron cargar los equipos" };
   }
@@ -31,6 +37,8 @@ export async function getEquipos(): Promise<ActionResult<EquipoConCount[]>> {
 
 export async function getEquipoById(id: string) {
   try {
+    await requirePermission(PERMISSIONS.EQUIPOS.VER);
+
     const equipo = await db.equipo.findUnique({
       where: { id },
       include: {
@@ -45,6 +53,8 @@ export async function getEquipoById(id: string) {
     }
     return { success: true, data: equipo };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener equipo:", error);
     return { success: false, error: "No se pudo obtener el equipo" };
   }
@@ -52,6 +62,8 @@ export async function getEquipoById(id: string) {
 
 export async function createEquipo(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.EQUIPOS.CREAR);
+
     const validation = equipoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -70,6 +82,8 @@ export async function createEquipo(rawInput: unknown) {
     revalidatePath("/dashboard/equipos");
     return { success: true, data: equipo };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -88,6 +102,8 @@ export async function createEquipo(rawInput: unknown) {
 
 export async function updateEquipo(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.EQUIPOS.EDITAR);
+
     const validation = equipoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -107,6 +123,8 @@ export async function updateEquipo(id: string, rawInput: unknown) {
     revalidatePath("/dashboard/equipos");
     return { success: true, data: equipo };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -125,6 +143,8 @@ export async function updateEquipo(id: string, rawInput: unknown) {
 
 export async function deleteEquipo(id: string) {
   try {
+    await requirePermission(PERMISSIONS.EQUIPOS.ELIMINAR);
+
     const equipo = await db.equipo.findUnique({
       where: { id },
       include: {
@@ -152,6 +172,8 @@ export async function deleteEquipo(id: string) {
     revalidatePath("/dashboard/equipos");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar equipo:", error);
     return { success: false, error: "No se pudo eliminar el equipo" };
   }
