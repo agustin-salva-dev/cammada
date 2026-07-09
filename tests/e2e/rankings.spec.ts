@@ -5,7 +5,7 @@ test.describe("Rankings — navegación y visualización", () => {
     await page.goto("/dashboard/rankings");
     await expect(page).toHaveURL(/\/dashboard\/rankings/);
     await expect(
-      page.getByRole("heading", { name: /rankings/i }),
+      page.getByRole("heading", { name: "Rankings", exact: true }),
     ).toBeVisible();
   });
 

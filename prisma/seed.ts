@@ -49,6 +49,37 @@ async function main() {
   });
   console.log(`  ✅ Admin user "${email}" seeded successfully`);
 
+  console.log("🌱 Seeding default modalities...");
+  const modalities = ["MMA", "Kickboxing", "Muay Thai"];
+  for (const m of modalities) {
+    await prisma.modalidad.upsert({
+      where: { nombre: m },
+      update: {},
+      create: { nombre: m },
+    });
+  }
+  console.log("  ✅ Modalities seeded successfully");
+
+  console.log("🌱 Seeding default weight categories...");
+  const categories = [
+    { nombre: "Peso Mosca", orden: 1, limiteInferior: 52, limiteSuperior: 57 },
+    { nombre: "Peso Gallo", orden: 2, limiteInferior: 57, limiteSuperior: 61 },
+    { nombre: "Peso Pluma", orden: 3, limiteInferior: 61, limiteSuperior: 66 },
+    { nombre: "Peso Ligero", orden: 4, limiteInferior: 66, limiteSuperior: 70 },
+  ];
+  for (const c of categories) {
+    await prisma.categoriaPeso.upsert({
+      where: { nombre: c.nombre },
+      update: {
+        orden: c.orden,
+        limiteInferior: c.limiteInferior,
+        limiteSuperior: c.limiteSuperior,
+      },
+      create: c,
+    });
+  }
+  console.log("  ✅ Weight categories seeded successfully");
+
   console.log("🌱 Seeding complete!");
 
   await prisma.$disconnect();

@@ -4,7 +4,7 @@ test.describe("Eventos — navegación y visualización", () => {
   test("navega correctamente a la sección de Eventos", async ({ page }) => {
     await page.goto("/dashboard/eventos");
     await expect(page).toHaveURL(/\/dashboard\/eventos/);
-    await expect(page.getByRole("heading", { name: /eventos/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Eventos", exact: true })).toBeVisible();
   });
 
   test("muestra la lista de eventos o el estado vacío", async ({ page }) => {
