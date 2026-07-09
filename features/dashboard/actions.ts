@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/action-guard";
+import { Prisma } from "@prisma/client";
 
 interface LuchadorResumen {
   id: string;
@@ -101,13 +102,61 @@ function topN(
     .slice(0, n);
 }
 
-const LUCHADOR_RESUMEN_SELECT = {
-  id: true,
-  nombre: true,
-  apellido: true,
-  apodo: true,
-  equipo: { select: { id: true, nombre: true } },
-} as const;
+async function getTopPeleadoresGlobal(
+  limit: number,
+): Promise<PeleadorConPeleas[]> {
+  const rows = await db.$queryRaw<
+    Array<{
+      id: string;
+      nombre: string;
+      apellido: string;
+      apodo: string;
+      equipoNombre: string;
+      totalPeleas: number;
+    }>
+  >(Prisma.sql`
+    SELECT
+      l.id,
+      l.nombre,
+      l.apellido,
+      l.apodo,
+      e.nombre AS "equipoNombre",
+      COUNT(c.id)::int AS "totalPeleas"
+    FROM "Luchador" l
+    JOIN "Equipo" e ON l."equipoId" = e.id
+    JOIN "Combate" c ON (c."peleador1Id" = l.id OR c."peleador2Id" = l.id)
+    GROUP BY l.id, l.nombre, l.apellido, l.apodo, e.nombre
+    ORDER BY "totalPeleas" DESC
+    LIMIT ${limit}
+  `);
+
+  return rows.map((r) => ({
+    id: r.id,
+    nombre: r.nombre,
+    apellido: r.apellido,
+    apodo: r.apodo,
+    equipo: r.equipoNombre,
+    totalPeleas: r.totalPeleas,
+  }));
+}
+
+async function getTopEquiposGlobal(limit: number): Promise<EquipoConConteo[]> {
+  const rows = await db.$queryRaw<
+    Array<{ nombre: string; cantidad: number }>
+  >(Prisma.sql`
+    SELECT
+      e.nombre,
+      COUNT(DISTINCT l.id)::int AS cantidad
+    FROM "Equipo" e
+    JOIN "Luchador" l ON l."equipoId" = e.id
+    JOIN "Combate" c ON (c."peleador1Id" = l.id OR c."peleador2Id" = l.id)
+    GROUP BY e.id, e.nombre
+    ORDER BY cantidad DESC
+    LIMIT ${limit}
+  `);
+
+  return rows.map((r) => ({ nombre: r.nombre, cantidad: r.cantidad }));
+}
 
 export async function getDashboardData(
   eventoId?: string,
@@ -210,51 +259,10 @@ export async function getDashboardData(
     const combatesPorTipo = contarPorClave(combates, (c) => c.tipo);
     const combatesPorEstado = contarPorClave(combates, (c) => c.estado);
     const peleasDeTitulo = combates.filter((c) => c.titulo).length;
-    const todosLosCombates = await db.combate.findMany({
-      select: {
-        peleador1: { select: LUCHADOR_RESUMEN_SELECT },
-        peleador2: { select: LUCHADOR_RESUMEN_SELECT },
-      },
-    });
-
-    const peleadorConteo: Record<
-      string,
-      { info: LuchadorResumen; total: number }
-    > = {};
-    for (const c of todosLosCombates) {
-      for (const p of [c.peleador1, c.peleador2]) {
-        if (!peleadorConteo[p.id]) {
-          peleadorConteo[p.id] = { info: p, total: 0 };
-        }
-        peleadorConteo[p.id].total += 1;
-      }
-    }
-    const topPeleadoresGlobal: PeleadorConPeleas[] = Object.values(
-      peleadorConteo,
-    )
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5)
-      .map((entry) => ({
-        id: entry.info.id,
-        nombre: entry.info.nombre,
-        apellido: entry.info.apellido,
-        apodo: entry.info.apodo,
-        equipo: entry.info.equipo.nombre,
-        totalPeleas: entry.total,
-      }));
-
-    const equiposGlobal: Record<string, Set<string>> = {};
-    for (const c of todosLosCombates) {
-      for (const p of [c.peleador1, c.peleador2]) {
-        const eNombre = p.equipo.nombre;
-        if (!equiposGlobal[eNombre]) equiposGlobal[eNombre] = new Set();
-        equiposGlobal[eNombre].add(p.id);
-      }
-    }
-    const topEquiposGlobal = Object.entries(equiposGlobal)
-      .map(([nombre, luchadores]) => ({ nombre, cantidad: luchadores.size }))
-      .sort((a, b) => b.cantidad - a.cantidad)
-      .slice(0, 5);
+    const [topPeleadoresGlobal, topEquiposGlobal] = await Promise.all([
+      getTopPeleadoresGlobal(5),
+      getTopEquiposGlobal(5),
+    ]);
 
     const [totalEventos, totalLuchadores, totalEquipos, totalCombates] =
       await Promise.all([
