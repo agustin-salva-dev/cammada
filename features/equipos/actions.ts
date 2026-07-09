@@ -3,8 +3,14 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { equipoSchema } from "./zod";
+import { Prisma } from "@prisma/client";
+import type { ActionResult } from "@/lib/types";
 
-export async function getEquipos() {
+type EquipoConCount = Prisma.EquipoGetPayload<{
+  include: { _count: { select: { luchadores: true } } };
+}>;
+
+export async function getEquipos(): Promise<ActionResult<EquipoConCount[]>> {
   try {
     const equipos = await db.equipo.findMany({
       include: {

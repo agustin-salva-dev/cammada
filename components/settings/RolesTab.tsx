@@ -118,7 +118,7 @@ export function RolesTab({ rolesConfig, currentUser }: RolesTabProps) {
       currentRole.permisos.includes(p),
     );
     const updatedPermissions = hasAll
-      ? currentRole.permisos.filter((p) => !assignablePermissions.includes(p))
+      ? currentRole.permisos.filter((p) => !(assignablePermissions as string[]).includes(p))
       : Array.from(
           new Set([...currentRole.permisos, ...assignablePermissions]),
         );
@@ -159,7 +159,7 @@ export function RolesTab({ rolesConfig, currentUser }: RolesTabProps) {
     );
     const updatedPermissions = hasAll
       ? currentRole.permisos.filter(
-          (p) => !assignableGroupPermissions.includes(p),
+          (p) => !(assignableGroupPermissions as string[]).includes(p),
         )
       : Array.from(
           new Set([...currentRole.permisos, ...assignableGroupPermissions]),

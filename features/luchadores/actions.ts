@@ -3,8 +3,27 @@
 import { db } from "@/lib/db";
 import { luchadorSchema } from "./zod";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
+import type { ActionResult } from "@/lib/types";
 
-export async function getLuchadores() {
+type LuchadorConDetalle = Prisma.LuchadorGetPayload<{
+  include: {
+    categoria: true;
+    equipo: true;
+    records: { include: { modalidad: true } };
+  };
+}>;
+
+type LuchadorSelect = {
+  id: string;
+  nombre: string;
+  apellido: string;
+  apodo: string;
+  categoriaId: string;
+  equipo: { nombre: string } | null;
+};
+
+export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]>> {
   try {
     const luchadores = await db.luchador.findMany({
       include: {
@@ -27,7 +46,7 @@ export async function getLuchadores() {
   }
 }
 
-export async function getLuchadoresSelect() {
+export async function getLuchadoresSelect(): Promise<ActionResult<LuchadorSelect[]>> {
   try {
     const luchadores = await db.luchador.findMany({
       select: {

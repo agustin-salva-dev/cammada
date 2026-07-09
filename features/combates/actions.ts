@@ -3,6 +3,8 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { combateSchema } from "./zod";
+import type { ActionResult } from "@/lib/types";
+import type { CombateConDetalle } from "./types";
 
 const DASHBOARD_COMBATES_PATH = "/dashboard/combates";
 
@@ -15,7 +17,7 @@ const COMBATE_INCLUDE = {
   modalidad: { select: { id: true, nombre: true } },
 } as const;
 
-export async function getCombates() {
+export async function getCombates(): Promise<ActionResult<CombateConDetalle[]>> {
   try {
     const combates = await db.combate.findMany({
       include: COMBATE_INCLUDE,

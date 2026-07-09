@@ -1,0 +1,83 @@
+name: CI — Test Suite
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Unit, Integration & E2E Tests
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: cammada_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://test_user:test_password@localhost:5432/cammada_test"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "ci-testing-secret-key-for-automated-tests"
+      NODE_ENV: test
+      TEST_USER_EMAIL: "user@test.com"
+      TEST_USER_PASSWORD: "testuser123!"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      - name: Run Prisma migrations on test database
+        run: pnpm prisma db push
+
+      - name: Seed database with test user and default roles
+        run: npx tsx prisma/seed.ts
+
+      - name: Run Unit & Integration Tests (Vitest)
+        run: pnpm test:unit
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build Next.js app for E2E
+        run: pnpm build
+
+      - name: Run E2E Tests (Playwright)
+        run: pnpm test:e2e
+
+      - name: Upload Playwright HTML report (on failure)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

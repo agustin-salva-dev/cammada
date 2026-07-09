@@ -41,7 +41,7 @@ export const registerSchema = z.object({
   imagen: z
     .string()
     .url({ error: "La URL de la imagen no es válida." })
-    .optional()
+    .nullish()
     .or(z.literal("")),
 });
 
