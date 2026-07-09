@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { modalidadSchema } from "./zod";
 import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 type ModalidadSelect = { id: string; nombre: string };
 type ModalidadConCount = Prisma.ModalidadGetPayload<{
@@ -13,6 +15,8 @@ type ModalidadConCount = Prisma.ModalidadGetPayload<{
 
 export async function getModalidades(): Promise<ActionResult<ModalidadConCount[]>> {
   try {
+    await requirePermission(PERMISSIONS.MODALIDADES.VER);
+
     const modalidades = await db.modalidad.findMany({
       include: {
         _count: {
@@ -25,6 +29,8 @@ export async function getModalidades(): Promise<ActionResult<ModalidadConCount[]
     });
     return { success: true, data: modalidades };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener modalidades:", error);
     return { success: false, error: "No se pudieron cargar las modalidades" };
   }
@@ -32,6 +38,8 @@ export async function getModalidades(): Promise<ActionResult<ModalidadConCount[]
 
 export async function getModalidadesSelect(): Promise<ActionResult<ModalidadSelect[]>> {
   try {
+    await requirePermission(PERMISSIONS.MODALIDADES.VER);
+
     const modalidades = await db.modalidad.findMany({
       select: {
         id: true,
@@ -43,6 +51,8 @@ export async function getModalidadesSelect(): Promise<ActionResult<ModalidadSele
     });
     return { success: true, data: modalidades };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener modalidades para select:", error);
     return { success: false, error: "No se pudieron cargar las modalidades" };
   }
@@ -50,6 +60,8 @@ export async function getModalidadesSelect(): Promise<ActionResult<ModalidadSele
 
 export async function createModalidad(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.MODALIDADES.CREAR);
+
     const validation = modalidadSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -69,6 +81,8 @@ export async function createModalidad(rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: modalidad };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -87,6 +101,8 @@ export async function createModalidad(rawInput: unknown) {
 
 export async function updateModalidad(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.MODALIDADES.EDITAR);
+
     const validation = modalidadSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -107,6 +123,8 @@ export async function updateModalidad(id: string, rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: modalidad };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -125,6 +143,8 @@ export async function updateModalidad(id: string, rawInput: unknown) {
 
 export async function deleteModalidad(id: string) {
   try {
+    await requirePermission(PERMISSIONS.MODALIDADES.ELIMINAR);
+
     const modalidad = await db.modalidad.findUnique({
       where: { id },
       include: {
@@ -153,6 +173,8 @@ export async function deleteModalidad(id: string) {
     revalidatePath("/dashboard/luchadores");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar modalidad:", error);
     return { success: false, error: "No se pudo eliminar la modalidad" };
   }

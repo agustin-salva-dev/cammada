@@ -5,7 +5,9 @@ import { signIn, signOut } from "@/lib/auth";
 import { hash } from "bcryptjs";
 import { registerSchema, loginSchema } from "./zod";
 import { AuthError } from "next-auth";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { requireAdmin, toAuthError } from "@/lib/action-guard";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 export type AuthFormState = {
   success: boolean;
@@ -16,10 +18,28 @@ export type AuthFormState = {
 const AUTH_FLOW_COOKIE = "auth_flow";
 const AUTH_FLOW_MAX_AGE = 600;
 
+// ─────────────────────────────────────────────────────────────
+// Register — restricted to SUPERADMIN and ADMIN only
+// ─────────────────────────────────────────────────────────────
+
 export async function registerUser(
   _prevState: AuthFormState | undefined,
   formData: FormData,
 ): Promise<AuthFormState> {
+  // Only authenticated admins can create new accounts.
+  try {
+    await requireAdmin();
+  } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) {
+      return {
+        success: false,
+        message: "No tienes permisos para registrar usuarios. Debes estar autenticado como SUPERADMIN o ADMIN.",
+      };
+    }
+    throw error;
+  }
+
   const rawData = {
     nombre: formData.get("nombre") as string,
     email: formData.get("email") as string,
@@ -76,10 +96,29 @@ export async function registerUser(
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Login — rate-limited by IP
+// ─────────────────────────────────────────────────────────────
+
 export async function loginUser(
   _prevState: AuthFormState | undefined,
   formData: FormData,
 ): Promise<AuthFormState> {
+  // Rate limiting: 10 attempts per 15-minute window per IP.
+  const headerStore = await headers();
+  const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  const rateLimit = checkRateLimit(`login:${ip}`);
+
+  if (!rateLimit.allowed) {
+    const minutesLeft = rateLimit.remainingMs
+      ? Math.ceil(rateLimit.remainingMs / 60000)
+      : 15;
+    return {
+      success: false,
+      message: `Demasiados intentos fallidos. Espera ${minutesLeft} minuto(s) antes de intentar de nuevo.`,
+    };
+  }
+
   const rawData = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -121,6 +160,10 @@ export async function loginUser(
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Google OAuth — login
+// ─────────────────────────────────────────────────────────────
+
 export async function loginWithGoogle() {
   const cookieStore = await cookies();
   cookieStore.set(AUTH_FLOW_COOKIE, "login", {
@@ -133,7 +176,14 @@ export async function loginWithGoogle() {
   await signIn("google", { redirectTo: "/dashboard" });
 }
 
+// ─────────────────────────────────────────────────────────────
+// Google OAuth — register (restricted to SUPERADMIN/ADMIN)
+// ─────────────────────────────────────────────────────────────
+
 export async function registerWithGoogle() {
+  // Only authenticated admins can initiate the Google registration flow.
+  await requireAdmin();
+
   const cookieStore = await cookies();
   cookieStore.set(AUTH_FLOW_COOKIE, "register", {
     httpOnly: true,
@@ -144,6 +194,10 @@ export async function registerWithGoogle() {
   });
   await signIn("google", { redirectTo: "/dashboard" });
 }
+
+// ─────────────────────────────────────────────────────────────
+// Logout
+// ─────────────────────────────────────────────────────────────
 
 export async function logoutUser() {
   await signOut({ redirectTo: "/admin" });

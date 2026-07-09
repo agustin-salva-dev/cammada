@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { categoriaPesoSchema } from "./zod";
 import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 type CategoriaPesoConCount = Prisma.CategoriaPesoGetPayload<{
   include: { _count: { select: { luchadores: true } } };
@@ -19,6 +21,8 @@ type CategoriaPesoSelect = {
 
 export async function getCategoriasPeso(): Promise<ActionResult<CategoriaPesoConCount[]>> {
   try {
+    await requirePermission(PERMISSIONS.CATEGORIAS.VER);
+
     const categorias = await db.categoriaPeso.findMany({
       include: {
         _count: {
@@ -31,6 +35,8 @@ export async function getCategoriasPeso(): Promise<ActionResult<CategoriaPesoCon
     });
     return { success: true, data: categorias };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener categorías de peso:", error);
     return {
       success: false,
@@ -41,6 +47,8 @@ export async function getCategoriasPeso(): Promise<ActionResult<CategoriaPesoCon
 
 export async function getCategoriasPesoSelect(): Promise<ActionResult<CategoriaPesoSelect[]>> {
   try {
+    await requirePermission(PERMISSIONS.CATEGORIAS.VER);
+
     const categorias = await db.categoriaPeso.findMany({
       select: {
         id: true,
@@ -54,6 +62,8 @@ export async function getCategoriasPesoSelect(): Promise<ActionResult<CategoriaP
     });
     return { success: true, data: categorias };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener categorías para select:", error);
     return {
       success: false,
@@ -64,6 +74,8 @@ export async function getCategoriasPesoSelect(): Promise<ActionResult<CategoriaP
 
 export async function createCategoriaPeso(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.CATEGORIAS.CREAR);
+
     const validation = categoriaPesoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -94,6 +106,8 @@ export async function createCategoriaPeso(rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -112,6 +126,8 @@ export async function createCategoriaPeso(rawInput: unknown) {
 
 export async function updateCategoriaPeso(id: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.CATEGORIAS.EDITAR);
+
     const validation = categoriaPesoSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -143,6 +159,8 @@ export async function updateCategoriaPeso(id: string, rawInput: unknown) {
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -164,6 +182,8 @@ export async function updateCategoriaPeso(id: string, rawInput: unknown) {
 
 export async function deleteCategoriaPeso(id: string) {
   try {
+    await requirePermission(PERMISSIONS.CATEGORIAS.ELIMINAR);
+
     const categoria = await db.categoriaPeso.findUnique({
       where: { id },
       include: {
@@ -197,6 +217,8 @@ export async function deleteCategoriaPeso(id: string) {
     revalidatePath("/dashboard/luchadores");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar categoría de peso:", error);
     return {
       success: false,

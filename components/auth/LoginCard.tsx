@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -12,26 +11,44 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronRight, Loader2 } from "lucide-react";
-import { ROUTES } from "@/constants/routes";
+import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { loginUser, loginWithGoogle } from "@/features/auth/actions";
 import type { AuthFormState } from "@/features/auth/actions";
+import { toast } from "sonner";
+
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  NoAccount:
+    "No existe una cuenta con ese correo de Google. Contacta a un administrador.",
+  Unauthorized:
+    "No tienes permisos para registrar usuarios. Solo SUPERADMIN o ADMIN pueden hacerlo.",
+  Unauthenticated:
+    "Debes iniciar sesión para acceder a esa página.",
+};
 
 export default function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const googleError = searchParams.get("error");
+  const errorParam = searchParams.get("error");
 
   const [state, formAction, isPending] = useActionState<
     AuthFormState | undefined,
     FormData
   >(loginUser, undefined);
 
+  // Show server-side redirect errors as toasts.
+  useEffect(() => {
+    if (errorParam && AUTH_ERROR_MESSAGES[errorParam]) {
+      toast.error(AUTH_ERROR_MESSAGES[errorParam]);
+      // Clean the query param from the URL without a full navigation.
+      router.replace("/admin");
+    }
+  }, [errorParam, router]);
+
   useEffect(() => {
     if (state?.success) {
-      router.replace(ROUTES.DASHBOARD);
+      router.replace("/dashboard");
     }
   }, [state?.success, router]);
 
@@ -42,15 +59,6 @@ export default function LoginCard() {
         <CardDescription>
           Ingresa tu correo para iniciar sesión en tu cuenta
         </CardDescription>
-        <CardAction className="flex">
-          <Button
-            variant="ghost"
-            className="text-muted-foreground"
-            onClick={() => router.push(ROUTES.ADMIN_REGISTER)}
-          >
-            Registrarse <ChevronRight />
-          </Button>
-        </CardAction>
       </CardHeader>
       <CardContent>
         <form id="login-form" action={formAction}>
@@ -97,12 +105,6 @@ export default function LoginCard() {
             {state?.message && !state.success && (
               <p className="text-sm text-destructive text-center">
                 {state.message}
-              </p>
-            )}
-            {googleError === "NoAccount" && (
-              <p className="text-sm text-destructive text-center">
-                No existe una cuenta con ese correo de Google. Regístrate
-                primero.
               </p>
             )}
           </div>
