@@ -25,7 +25,9 @@ type LuchadorSelect = {
   equipo: { nombre: string } | null;
 };
 
-export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]>> {
+export async function getLuchadores(): Promise<
+  ActionResult<LuchadorConDetalle[]>
+> {
   try {
     await requirePermission(PERMISSIONS.LUCHADORES.VER);
 
@@ -52,7 +54,9 @@ export async function getLuchadores(): Promise<ActionResult<LuchadorConDetalle[]
   }
 }
 
-export async function getLuchadoresSelect(): Promise<ActionResult<LuchadorSelect[]>> {
+export async function getLuchadoresSelect(): Promise<
+  ActionResult<LuchadorSelect[]>
+> {
   try {
     await requirePermission(PERMISSIONS.LUCHADORES.VER);
 
@@ -259,6 +263,19 @@ export async function deleteLuchador(id: string) {
   } catch (error) {
     const authError = toAuthError(error);
     if (authError) return authError;
+
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2003"
+    ) {
+      return {
+        success: false,
+        error: "No se puede eliminar: el luchador tiene combates asociados",
+      };
+    }
+
     console.error("Error al eliminar luchador:", error);
     return { success: false, error: "No se pudo eliminar el luchador" };
   }
@@ -266,7 +283,6 @@ export async function deleteLuchador(id: string) {
 
 export async function fetchTapologyFighter(slugOrUrl: string) {
   try {
-    // Requires at minimum the permission to view/create fighters to use this lookup tool.
     await requirePermission(PERMISSIONS.LUCHADORES.VER);
 
     if (!slugOrUrl) {
@@ -286,9 +302,14 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
     }
     slug = slug.trim();
 
-    const apiKey =
-      process.env.RAPIDAPI_KEY ||
-      "ce57bab601msh58a4c73a4723b40p16e3f7jsn00afa3838bfd";
+    const apiKey = process.env.RAPIDAPI_KEY;
+    if (!apiKey) {
+      return {
+        success: false,
+        error:
+          "La integración con Tapology no está configurada (RAPIDAPI_KEY no definida).",
+      };
+    }
     const apiHost =
       process.env.RAPIDAPI_HOST || "unofficial-tapology-api.p.rapidapi.com";
 

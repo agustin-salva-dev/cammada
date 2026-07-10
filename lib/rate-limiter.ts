@@ -1,31 +1,51 @@
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
 const MAX_ATTEMPTS = 10;
-const WINDOW_MS = 15 * 60 * 1000;
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-const store = new Map<string, RateLimitEntry>();
+const WINDOW_SECONDS = 15 * 60;
 
 export interface RateLimitResult {
   allowed: boolean;
   remainingMs?: number;
 }
 
-export function checkRateLimit(key: string): RateLimitResult {
-  const now = Date.now();
-  const entry = store.get(key);
+let ratelimit: Ratelimit | null = null;
 
-  if (!entry || now >= entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + WINDOW_MS });
+function getRatelimiter(): Ratelimit | null {
+  if (ratelimit) return ratelimit;
+
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    console.warn(
+      "[rate-limiter] UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not set. " +
+        "Rate limiting is DISABLED. Set these env vars in production.",
+    );
+    return null;
+  }
+
+  ratelimit = new Ratelimit({
+    redis: new Redis({ url, token }),
+    limiter: Ratelimit.slidingWindow(MAX_ATTEMPTS, `${WINDOW_SECONDS} s`),
+    prefix: "cammada:rl",
+  });
+
+  return ratelimit;
+}
+
+export async function checkRateLimit(key: string): Promise<RateLimitResult> {
+  const limiter = getRatelimiter();
+
+  if (!limiter) {
     return { allowed: true };
   }
 
-  if (entry.count >= MAX_ATTEMPTS) {
-    return { allowed: false, remainingMs: entry.resetAt - now };
+  const { success, reset } = await limiter.limit(key);
+
+  if (!success) {
+    return { allowed: false, remainingMs: reset - Date.now() };
   }
 
-  entry.count += 1;
   return { allowed: true };
 }

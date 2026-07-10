@@ -1,8 +1,3 @@
-/**
- * All available permissions in the system, organized by feature.
- * Each permission follows the pattern: "feature:action"
- */
-
 export const PERMISSIONS = {
   LUCHADORES: {
     VER: "luchadores:ver",
@@ -39,6 +34,12 @@ export const PERMISSIONS = {
     CREAR: "modalidades:crear",
     EDITAR: "modalidades:editar",
     ELIMINAR: "modalidades:eliminar",
+  },
+  RANKINGS: {
+    VER: "rankings:ver",
+    CREAR: "rankings:crear",
+    EDITAR: "rankings:editar",
+    ELIMINAR: "rankings:eliminar",
   },
   AJUSTES: {
     GESTIONAR_CUENTAS: "ajustes:gestionar_cuentas",
