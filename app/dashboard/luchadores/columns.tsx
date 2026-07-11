@@ -39,8 +39,10 @@ export type LuchadorRow = {
 export function getColumns(
   onDelete: (id: string, nombre: string) => void,
   onEdit: (luchador: LuchadorRow) => void,
+  canEdit = true,
+  canDelete = true,
 ): ColumnDef<LuchadorRow>[] {
-  return [
+  const columns: ColumnDef<LuchadorRow>[] = [
     {
       accessorKey: "nombre",
       header: ({ column }) => (
@@ -236,27 +238,39 @@ export function getColumns(
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onEdit(luchador)}>
-                <Pencil className="h-4 w-4" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() =>
-                  onDelete(
-                    luchador.id,
-                    `${luchador.nombre} ${luchador.apellido}`,
-                  )
-                }
-              >
-                <Trash2 className="h-4 w-4" />
-                Eliminar
-              </DropdownMenuItem>
+              {canEdit && (
+                <DropdownMenuItem onClick={() => onEdit(luchador)}>
+                  <Pencil className="h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {canDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() =>
+                      onDelete(
+                        luchador.id,
+                        `${luchador.nombre} ${luchador.apellido}`,
+                      )
+                    }
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
       },
     },
   ];
+
+  if (!canEdit && !canDelete) {
+    return columns.filter((c) => (c as { id?: string }).id !== "actions");
+  }
+
+  return columns;
 }

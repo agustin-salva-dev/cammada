@@ -21,12 +21,16 @@ interface LuchadoresTableProps {
   data: LuchadorRow[];
   categorias: string[];
   equipos: string[];
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export function LuchadoresTable({
   data,
   categorias,
   equipos,
+  canEdit = true,
+  canDelete = true,
 }: LuchadoresTableProps) {
   const [deleteTarget, setDeleteTarget] = React.useState<{
     id: string;
@@ -66,7 +70,10 @@ export function LuchadoresTable({
     }
   }, [deleteTarget]);
 
-  const columns = React.useMemo(() => getColumns(handleDelete, handleEdit), [handleDelete, handleEdit]);
+  const columns = React.useMemo(
+    () => getColumns(handleDelete, handleEdit, canEdit, canDelete),
+    [handleDelete, handleEdit, canEdit, canDelete],
+  );
 
   return (
     <>

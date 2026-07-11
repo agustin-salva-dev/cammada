@@ -81,6 +81,24 @@ export async function requirePermission(
   return user;
 }
 
+export async function hasPermission(permission: string): Promise<boolean> {
+  try {
+    await requirePermission(permission);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function getUserRole(): Promise<string | null> {
+  try {
+    const user = await getSession();
+    return user.role;
+  } catch {
+    return null;
+  }
+}
+
 export async function requireAdmin(): Promise<AuthorizedUser> {
   const user = await getSession();
 

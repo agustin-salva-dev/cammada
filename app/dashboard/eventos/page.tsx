@@ -5,9 +5,14 @@ import { getEventos } from "@/features/eventos/actions";
 import { CardEvento } from "@/features/eventos/components/CardEvento";
 import { ModalEvento } from "@/features/eventos/components/ModalEvento";
 import type { EstadoEvento } from "@/features/eventos/zod";
+import { hasPermission } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 export default async function Eventos() {
-  const result = await getEventos();
+  const [result, canCreate] = await Promise.all([
+    getEventos(),
+    hasPermission(PERMISSIONS.EVENTOS.CREAR),
+  ]);
   const eventos = result.success && result.data ? result.data : [];
 
   return (
@@ -27,14 +32,16 @@ export default async function Eventos() {
             <Download strokeWidth={IconButtonConfig.strokeWidth} />
             Exportar eventos
           </Button>
-          <ModalEvento
-            trigger={
-              <Button className="shadow-md shadow-primary/10">
-                <BadgePlus strokeWidth={IconButtonConfig.strokeWidth} />
-                Nuevo evento
-              </Button>
-            }
-          />
+          {canCreate && (
+            <ModalEvento
+              trigger={
+                <Button className="shadow-md shadow-primary/10">
+                  <BadgePlus strokeWidth={IconButtonConfig.strokeWidth} />
+                  Nuevo evento
+                </Button>
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -50,14 +57,16 @@ export default async function Eventos() {
             Comienza creando tu primer evento para organizar las carteleras de
             peleas.
           </p>
-          <ModalEvento
-            trigger={
-              <Button className="mt-6 shadow-sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Crear primer evento
-              </Button>
-            }
-          />
+          {canCreate && (
+            <ModalEvento
+              trigger={
+                <Button className="mt-6 shadow-sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Crear primer evento
+                </Button>
+              }
+            />
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">

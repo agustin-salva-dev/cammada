@@ -49,6 +49,26 @@ async function main() {
   });
   console.log(`  ✅ Admin user "${email}" seeded successfully`);
 
+  console.log("🌱 Seeding default helper (ayudante) user...");
+  const helperEmail = process.env.TEST_HELPER_EMAIL || "ayudante@test.com";
+  const helperPassword = process.env.TEST_HELPER_PASSWORD || "ayudante123!";
+  const hashedHelperPassword = bcrypt.hashSync(helperPassword, 10);
+
+  await prisma.usuario.upsert({
+    where: { email: helperEmail },
+    update: {
+      password: hashedHelperPassword,
+      rol: "AYUDANTE",
+    },
+    create: {
+      email: helperEmail,
+      nombre: "Ayudante de Pruebas",
+      password: hashedHelperPassword,
+      rol: "AYUDANTE",
+    },
+  });
+  console.log(`  ✅ Helper user "${helperEmail}" seeded successfully`);
+
   console.log("🌱 Seeding default modalities...");
   const modalities = ["MMA", "Kickboxing", "Muay Thai"];
   for (const m of modalities) {

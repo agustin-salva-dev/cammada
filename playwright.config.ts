@@ -2,7 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, ".env.test") });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, ".env.test"), override: true });
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -23,12 +24,26 @@ export default defineConfig({
       testMatch: "**/tests/e2e/auth.setup.ts",
     },
     {
+      name: "setup-helper",
+      testMatch: "**/tests/e2e/auth.helper.setup.ts",
+    },
+    {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
         storageState: "tests/e2e/.auth/user.json",
       },
       dependencies: ["setup"],
+      testIgnore: "**/autorizacion-ayudante.spec.ts",
+    },
+    {
+      name: "chromium-helper",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "tests/e2e/.auth/helper.json",
+      },
+      dependencies: ["setup-helper"],
+      testMatch: "**/tests/e2e/autorizacion-ayudante.spec.ts",
     },
   ],
   webServer: {
