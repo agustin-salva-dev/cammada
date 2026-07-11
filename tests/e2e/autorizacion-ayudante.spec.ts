@@ -17,7 +17,7 @@ test.describe("Ayudante — acceso de solo lectura al dashboard", () => {
   test("puede ver el listado de eventos", async ({ page }) => {
     await page.goto("/dashboard/eventos");
     await expect(page).toHaveURL(/\/dashboard\/eventos/);
-    await expect(page.getByRole("heading", { name: /eventos/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Eventos", exact: true })).toBeVisible();
   });
 });
 
