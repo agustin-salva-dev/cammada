@@ -57,7 +57,7 @@ jobs:
         run: pnpm prisma generate
 
       - name: Run Prisma migrations on test database
-        run: pnpm prisma db push --skip-generate
+        run: pnpm prisma db push
 
       - name: Seed database with test user and default roles
         run: npx tsx prisma/seed.ts
