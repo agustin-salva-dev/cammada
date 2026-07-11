@@ -99,7 +99,7 @@ export async function loginUser(
   const headerStore = await headers();
   const ip =
     headerStore.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-  const rateLimit = checkRateLimit(`login:${ip}`);
+  const rateLimit = await checkRateLimit(`login:${ip}`);
 
   if (!rateLimit.allowed) {
     const minutesLeft = rateLimit.remainingMs

@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/action-guard";
 import { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
 interface LuchadorResumen {
   id: string;
@@ -158,13 +159,8 @@ async function getTopEquiposGlobal(limit: number): Promise<EquipoConConteo[]> {
   return rows.map((r) => ({ nombre: r.nombre, cantidad: r.cantidad }));
 }
 
-export async function getDashboardData(
-  eventoId?: string,
-): Promise<
-  { success: true; data: DashboardData } | { success: false; error: string }
-> {
-  try {
-    await getAuthenticatedUser();
+const getCachedDashboardData = unstable_cache(
+  async (eventoId?: string) => {
     const evento = eventoId
       ? await db.evento.findUnique({
           where: { id: eventoId },
@@ -204,7 +200,7 @@ export async function getDashboardData(
         });
 
     if (!evento) {
-      return { success: false, error: "No se encontraron eventos" };
+      return null;
     }
 
     const combates = evento.combates;
@@ -273,36 +269,50 @@ export async function getDashboardData(
       ]);
 
     return {
-      success: true,
-      data: {
-        evento: {
-          id: evento.id,
-          numero: evento.numero,
-          fecha: evento.fecha,
-          horaInicio: evento.horaInicio,
-          horaFin: evento.horaFin,
-          lugarNombre: evento.lugarNombre,
-          calle: evento.calle,
-          calleNumero: evento.calleNumero,
-          estado: evento.estado,
-          totalCombates: combates.length,
-          combatesPorTipo,
-          combatesPorEstado,
-          peleasDeTitulo,
-        },
-        combatesDestacados,
-        topCategorias,
-        topEquiposEvento,
-        topPeleadoresGlobal,
-        topEquiposGlobal,
-        kpisGlobales: {
-          totalEventos,
-          totalLuchadores,
-          totalEquipos,
-          totalCombates,
-        },
+      evento: {
+        id: evento.id,
+        numero: evento.numero,
+        fecha: evento.fecha,
+        horaInicio: evento.horaInicio,
+        horaFin: evento.horaFin,
+        lugarNombre: evento.lugarNombre,
+        calle: evento.calle,
+        calleNumero: evento.calleNumero,
+        estado: evento.estado,
+        totalCombates: combates.length,
+        combatesPorTipo,
+        combatesPorEstado,
+        peleasDeTitulo,
+      },
+      combatesDestacados,
+      topCategorias,
+      topEquiposEvento,
+      topPeleadoresGlobal,
+      topEquiposGlobal,
+      kpisGlobales: {
+        totalEventos,
+        totalLuchadores,
+        totalEquipos,
+        totalCombates,
       },
     };
+  },
+  ["dashboard-data"],
+  { revalidate: 60, tags: ["dashboard"] },
+);
+
+export async function getDashboardData(
+  eventoId?: string,
+): Promise<
+  { success: true; data: DashboardData } | { success: false; error: string }
+> {
+  try {
+    await getAuthenticatedUser();
+    const data = await getCachedDashboardData(eventoId);
+    if (!data) {
+      return { success: false, error: "No se encontraron eventos" };
+    }
+    return { success: true, data };
   } catch (error) {
     console.error("Error al obtener datos del dashboard:", error);
     return {
@@ -312,13 +322,9 @@ export async function getDashboardData(
   }
 }
 
-export async function getEventosDropdownList(): Promise<
-  | { success: true; data: EventoDropdownItem[] }
-  | { success: false; error: string }
-> {
-  try {
-    await getAuthenticatedUser();
-    const eventos = await db.evento.findMany({
+const getCachedEventosDropdownList = unstable_cache(
+  async () => {
+    return db.evento.findMany({
       select: {
         id: true,
         numero: true,
@@ -327,6 +333,18 @@ export async function getEventosDropdownList(): Promise<
       },
       orderBy: { numero: "desc" },
     });
+  },
+  ["eventos-dropdown-list"],
+  { revalidate: 30, tags: ["eventos"] },
+);
+
+export async function getEventosDropdownList(): Promise<
+  | { success: true; data: EventoDropdownItem[] }
+  | { success: false; error: string }
+> {
+  try {
+    await getAuthenticatedUser();
+    const eventos = await getCachedEventosDropdownList();
     return { success: true, data: eventos };
   } catch (error) {
     console.error("Error al obtener lista de eventos:", error);

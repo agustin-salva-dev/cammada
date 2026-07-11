@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { rankingSchema } from "./zod";
 import type { ActionResult } from "@/lib/types";
+import { requirePermission, toAuthError } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 const TOP_LIMIT = 15;
 
@@ -43,6 +45,7 @@ export type RankingConDetalle = {
 
 export async function getRankings(): Promise<ActionResult<RankingConDetalle[]>> {
   try {
+    await requirePermission(PERMISSIONS.RANKINGS.VER);
     const rankings = await db.ranking.findMany({
       include: {
         categoriaPeso: { select: { id: true, nombre: true } },
@@ -85,6 +88,8 @@ export async function getRankings(): Promise<ActionResult<RankingConDetalle[]>> 
 
     return { success: true, data: result };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener rankings:", error);
     return { success: false, error: "No se pudieron cargar los rankings" };
   }
@@ -92,6 +97,7 @@ export async function getRankings(): Promise<ActionResult<RankingConDetalle[]>> 
 
 export async function getRankingById(id: string) {
   try {
+    await requirePermission(PERMISSIONS.RANKINGS.VER);
     const ranking = await db.ranking.findUnique({
       where: { id },
       include: {
@@ -133,6 +139,8 @@ export async function getRankingById(id: string) {
     const { _count, ...rest } = ranking;
     return { success: true, data: { ...rest, totalItems: _count.items } };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener el ranking:", error);
     return { success: false, error: "No se pudo cargar el ranking" };
   }
@@ -140,6 +148,8 @@ export async function getRankingById(id: string) {
 
 export async function createRanking(rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.RANKINGS.CREAR);
+
     const validation = rankingSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -171,6 +181,8 @@ export async function createRanking(rawInput: unknown) {
     revalidatePath("/dashboard/rankings");
     return { success: true, data: ranking };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -189,6 +201,8 @@ export async function createRanking(rawInput: unknown) {
 
 export async function updateRankingItems(rankingId: string, rawInput: unknown) {
   try {
+    await requirePermission(PERMISSIONS.RANKINGS.EDITAR);
+
     const validation = rankingSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
@@ -226,6 +240,8 @@ export async function updateRankingItems(rankingId: string, rawInput: unknown) {
     revalidatePath("/dashboard/rankings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     if (
       typeof error === "object" &&
       error !== null &&
@@ -244,10 +260,14 @@ export async function updateRankingItems(rankingId: string, rawInput: unknown) {
 
 export async function deleteRanking(id: string) {
   try {
+    await requirePermission(PERMISSIONS.RANKINGS.ELIMINAR);
+
     await db.ranking.delete({ where: { id } });
     revalidatePath("/dashboard/rankings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar el ranking:", error);
     return { success: false, error: "No se pudo eliminar el ranking" };
   }
