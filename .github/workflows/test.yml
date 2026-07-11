@@ -34,6 +34,8 @@ jobs:
       NODE_ENV: test
       TEST_USER_EMAIL: "user@test.com"
       TEST_USER_PASSWORD: "testuser123!"
+      TEST_HELPER_EMAIL: "ayudante@test.com"
+      TEST_HELPER_PASSWORD: "ayudante123!"
 
     steps:
       - name: Checkout repository
