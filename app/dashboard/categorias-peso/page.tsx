@@ -4,6 +4,8 @@ import { IconButtonConfig } from "@/constants/ui";
 import { getCategoriasPeso } from "@/features/categorias-peso/actions";
 import { CardCategoriaPeso } from "@/features/categorias-peso/components/CardCategoriaPeso";
 import { ModalCategoriaPeso } from "@/features/categorias-peso/components/ModalCategoriaPeso";
+import { hasPermission } from "@/lib/action-guard";
+import { PERMISSIONS } from "@/constants/permissions";
 
 interface CategoriaPesoOption {
   id: string;
@@ -17,7 +19,10 @@ interface CategoriaPesoOption {
 }
 
 export default async function CategoriasPesoPage() {
-  const result = await getCategoriasPeso();
+  const [result, canCreate] = await Promise.all([
+    getCategoriasPeso(),
+    hasPermission(PERMISSIONS.CATEGORIAS.CREAR),
+  ]);
   const categorias: CategoriaPesoOption[] =
     result.success && result.data ? result.data : [];
 
@@ -34,14 +39,16 @@ export default async function CategoriasPesoPage() {
           </p>
         </div>
         <div className="flex gap-2 self-start sm:self-auto">
-          <ModalCategoriaPeso
-            trigger={
-              <Button className="shadow-md shadow-primary/10">
-                <BadgePlus strokeWidth={IconButtonConfig.strokeWidth} />
-                Nueva categoría
-              </Button>
-            }
-          />
+          {canCreate && (
+            <ModalCategoriaPeso
+              trigger={
+                <Button className="shadow-md shadow-primary/10">
+                  <BadgePlus strokeWidth={IconButtonConfig.strokeWidth} />
+                  Nueva categoría
+                </Button>
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -57,14 +64,16 @@ export default async function CategoriasPesoPage() {
             Comienza agregando una categoría de peso para clasificar a los
             luchadores.
           </p>
-          <ModalCategoriaPeso
-            trigger={
-              <Button className="mt-6 shadow-sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Crear primera categoría
-              </Button>
-            }
-          />
+          {canCreate && (
+            <ModalCategoriaPeso
+              trigger={
+                <Button className="mt-6 shadow-sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Crear primera categoría
+                </Button>
+              }
+            />
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
