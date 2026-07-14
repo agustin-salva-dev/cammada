@@ -12,7 +12,7 @@ import {
 import {
   LuchadorFormData,
   RecordModalidad,
-} from "@/components/luchadores/luchador.types";
+} from "@/features/luchadores/types";
 import Image from "next/image";
 import { PAISES, CIUDADES } from "@/config/paises";
 import { getEquipos } from "@/features/equipos/actions";

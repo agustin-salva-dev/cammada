@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { ModalEditarLuchador } from "@/components/luchadores/modals/ModalEditarLuchador";
+import { ModalEditarLuchador } from "@/features/luchadores/components/ModalEditarLuchador";
 
 interface LuchadoresTableProps {
   data: LuchadorRow[];

@@ -42,8 +42,8 @@ import {
 } from "@/features/search/actions";
 import { toast } from "sonner";
 
-import { ModalAgregarLuchador } from "@/components/luchadores/modals/ModalAgregarLuchador";
-import { ModalEditarLuchador } from "@/components/luchadores/modals/ModalEditarLuchador";
+import { ModalAgregarLuchador } from "@/features/luchadores/components/ModalAgregarLuchador";
+import { ModalEditarLuchador } from "@/features/luchadores/components/ModalEditarLuchador";
 import { ModalEquipo } from "@/features/equipos/components/ModalEquipo";
 import { ModalCombate } from "@/features/combates/components/ModalCombate";
 import { ModalEvento } from "@/features/eventos/components/ModalEvento";
