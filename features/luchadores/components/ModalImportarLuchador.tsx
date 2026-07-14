@@ -14,10 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LuchadorFormData } from "@/components/luchadores/luchador.types";
+import { LuchadorFormData } from "@/features/luchadores/types";
 import { fetchTapologyFighter, createLuchador } from "@/features/luchadores/actions";
 import { toast } from "sonner";
-import { LuchadorForm } from "../form/LuchadorForm";
+import { LuchadorForm } from "./LuchadorForm";
 import { getCategoriasPesoSelect } from "@/features/categorias-peso/actions";
 import { getModalidadesSelect } from "@/features/modalidades/actions";
 

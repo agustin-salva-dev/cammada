@@ -4,9 +4,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../../ui/card";
-import { Button } from "../../ui/button";
-import { MyBadge } from "../../ui/MyBadge";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MyBadge } from "@/components/ui/MyBadge";
 import Image from "next/image";
 
 export function CardAgregarLuchador() {

@@ -23,8 +23,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "No existe una cuenta con ese correo de Google. Contacta a un administrador.",
   Unauthorized:
     "No tienes permisos para registrar usuarios. Solo SUPERADMIN o ADMIN pueden hacerlo.",
-  Unauthenticated:
-    "Debes iniciar sesión para acceder a esa página.",
+  Unauthenticated: "Debes iniciar sesión para acceder a esa página.",
 };
 
 export default function LoginCard() {
@@ -37,11 +36,9 @@ export default function LoginCard() {
     FormData
   >(loginUser, undefined);
 
-  // Show server-side redirect errors as toasts.
   useEffect(() => {
     if (errorParam && AUTH_ERROR_MESSAGES[errorParam]) {
       toast.error(AUTH_ERROR_MESSAGES[errorParam]);
-      // Clean the query param from the URL without a full navigation.
       router.replace("/admin");
     }
   }, [errorParam, router]);

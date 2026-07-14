@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import RegisterCard from "@/components/auth/RegisterCard";
+import RegisterCard from "@/features/auth/components/RegisterCard";
 import { CammadaLogo } from "@/components/layout/CammadaLogo";
 
 export default async function RegisterPage() {

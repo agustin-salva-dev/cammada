@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { BadgePlus, Download, Sparkles } from "lucide-react";
 import { IconButtonConfig } from "@/constants/ui";
-import { ModalAgregarLuchador } from "@/components/luchadores/modals/ModalAgregarLuchador";
-import { ModalImportarLuchador } from "@/components/luchadores/modals/ModalImportarLuchador";
+import { ModalAgregarLuchador } from "@/features/luchadores/components/ModalAgregarLuchador";
+import { ModalImportarLuchador } from "@/features/luchadores/components/ModalImportarLuchador";
 import { getLuchadores } from "@/features/luchadores/actions";
 import { LuchadoresTable } from "./luchadores-table";
 import type { LuchadorRow } from "./columns";

@@ -5,9 +5,9 @@ import {
   getAllUsers,
   getRolesConfig,
 } from "@/features/settings/actions";
-import { ProfileTab } from "@/components/settings/ProfileTab";
-import { UsersTab } from "@/components/settings/UsersTab";
-import { RolesTab } from "@/components/settings/RolesTab";
+import { ProfileTab } from "@/features/settings/components/ProfileTab";
+import { UsersTab } from "@/features/settings/components/UsersTab";
+import { RolesTab } from "@/features/settings/components/RolesTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Users, ShieldAlert } from "lucide-react";
 

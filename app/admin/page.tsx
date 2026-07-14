@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import LoginCard from "@/components/auth/LoginCard";
+import LoginCard from "@/features/auth/components/LoginCard";
 import { CammadaLogo } from "@/components/layout/CammadaLogo";
 
 export default function AdminPage() {
