@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Label } from "@/components/ui/label";
 import {
   NativeSelect,
@@ -112,6 +113,18 @@ export function CombateForm({
   const displayName = (l: LuchadorOption) =>
     `${l.nombre} "${l.apodo}" ${l.apellido}`;
 
+  const peleador1Options = useMemo(() => {
+    return luchadores
+      .filter((l) => l.id !== form.peleador2Id)
+      .map((l) => ({ value: l.id, label: displayName(l) }));
+  }, [luchadores, form.peleador2Id]);
+
+  const peleador2Options = useMemo(() => {
+    return luchadores
+      .filter((l) => l.id !== form.peleador1Id)
+      .map((l) => ({ value: l.id, label: displayName(l) }));
+  }, [luchadores, form.peleador1Id]);
+
   return (
     <form
       id={formId}
@@ -133,24 +146,16 @@ export function CombateForm({
               *
             </span>
           </Label>
-          <NativeSelect
+          <SearchableSelect
             id={`${formId}-peleador1`}
             disabled={isPending}
             value={form.peleador1Id}
-            onChange={(e) => setField("peleador1Id", e.target.value)}
+            onValueChange={(val) => setField("peleador1Id", val)}
+            options={peleador1Options}
+            placeholder="Seleccionar peleador 1..."
+            searchPlaceholder="Buscar peleador..."
             required
-          >
-            <NativeSelectOption value="">Seleccionar...</NativeSelectOption>
-            {luchadores.map((l) => (
-              <NativeSelectOption
-                key={l.id}
-                value={l.id}
-                disabled={l.id === form.peleador2Id}
-              >
-                {displayName(l)}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -160,24 +165,16 @@ export function CombateForm({
               *
             </span>
           </Label>
-          <NativeSelect
+          <SearchableSelect
             id={`${formId}-peleador2`}
             disabled={isPending}
             value={form.peleador2Id}
-            onChange={(e) => setField("peleador2Id", e.target.value)}
+            onValueChange={(val) => setField("peleador2Id", val)}
+            options={peleador2Options}
+            placeholder="Seleccionar peleador 2..."
+            searchPlaceholder="Buscar peleador..."
             required
-          >
-            <NativeSelectOption value="">Seleccionar...</NativeSelectOption>
-            {luchadores.map((l) => (
-              <NativeSelectOption
-                key={l.id}
-                value={l.id}
-                disabled={l.id === form.peleador1Id}
-              >
-                {displayName(l)}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          />
         </div>
       </div>
 

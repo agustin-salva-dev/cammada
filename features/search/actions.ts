@@ -226,7 +226,7 @@ export async function getModalSelectOptions() {
           id: l.id,
           nombre: l.nombre,
           apellido: l.apellido,
-          apodo: l.apodo ?? "Sin apodo",
+          apodo: l.apodo || "",
         })),
         eventos: eventos.map((e) => ({
           id: e.id,

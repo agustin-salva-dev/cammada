@@ -40,7 +40,7 @@ interface ModalidadOption {
 function mapLuchadorRowToForm(luchador: LuchadorRow): LuchadorFormData {
   return {
     nombre: luchador.nombre || "",
-    apodo: luchador.apodo === "Sin apodo" ? "" : luchador.apodo || "",
+    apodo: luchador.apodo || "",
     apellido: luchador.apellido || "",
     edad: luchador.edad ?? undefined,
     altura: luchador.altura ?? undefined,
