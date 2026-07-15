@@ -44,6 +44,12 @@ export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
                 nombre: true,
               },
             },
+            categoriaPeso: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
           },
           orderBy: {
             numeroPelea: "asc",

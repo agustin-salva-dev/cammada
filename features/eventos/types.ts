@@ -8,6 +8,7 @@ export type EventoConDetalle = Prisma.EventoGetPayload<{
         peleador1: { select: { id: true; nombre: true; apellido: true; apodo: true } };
         peleador2: { select: { id: true; nombre: true; apellido: true; apodo: true } };
         modalidad: { select: { id: true; nombre: true } };
+        categoriaPeso: { select: { id: true; nombre: true } };
       };
     };
   };

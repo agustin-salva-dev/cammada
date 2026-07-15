@@ -13,7 +13,10 @@ import {
   Eye,
   Building2,
   ShieldAlert,
+  Download,
 } from "lucide-react";
+import { printHTML } from "@/lib/print";
+import { generateCarteleraHTML } from "@/features/eventos/utils/generate-cartelera-html";
 import { deleteEvento } from "../actions";
 import {
   Card,
@@ -43,6 +46,10 @@ import type { TipoCombate } from "@/features/combates/zod";
 interface CombateSimplificado {
   id: string;
   tipo: TipoCombate;
+  numeroPelea: number;
+  estado: string;
+  ganadorId: string | null;
+  viaVictoria: string | null;
   peleador1: {
     id: string;
     nombre: string;
@@ -56,6 +63,10 @@ interface CombateSimplificado {
     apodo: string | null;
   };
   modalidad: {
+    id: string;
+    nombre: string;
+  };
+  categoriaPeso: {
     id: string;
     nombre: string;
   };
@@ -143,6 +154,11 @@ export function CardEvento({
     estado,
   };
 
+  const handleDownloadPDF = () => {
+    const html = generateCarteleraHTML(eventoData, combates);
+    printHTML(html, `Cammada Fight Session #${numero} — Cartelera`);
+  };
+
   return (
     <Card
       size="sm"
@@ -206,71 +222,77 @@ export function CardEvento({
           evento={eventoData}
           combates={combates}
           trigger={
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-border/50 hover:bg-muted/50"
-            >
+            <Button size="sm" className="w-full">
               <Eye className="h-4 w-4 mr-1.5" />
               Información detallada
             </Button>
           }
         />
-
-        <div className="flex justify-end gap-1 w-full">
-          <ModalEvento
-            evento={eventoData}
-            trigger={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-200"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-            }
-          />
-
-          <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
-                disabled={isPending}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="border-border/50 bg-background/95 backdrop-blur-md">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-                  <ShieldAlert className="h-5 w-5" />
-                  ¿Confirmar eliminación?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground">
-                  Estás a punto de eliminar el evento{" "}
-                  <strong>Cammada Fight Session #{numero}</strong>. Esta acción
-                  no se puede deshacer.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>
-                  Cancelar
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDelete();
-                  }}
-                  disabled={isPending}
-                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleDownloadPDF}
+          className="w-full gap-2"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Descargar cartelera
+        </Button>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex gap-1">
+            <ModalEvento
+              evento={eventoData}
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-200"
                 >
-                  {isPending ? "Eliminando..." : "Eliminar"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              }
+            />
+
+            <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+                  disabled={isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="border-border/50 bg-background/95 backdrop-blur-md">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                    <ShieldAlert className="h-5 w-5" />
+                    ¿Confirmar eliminación?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">
+                    Estás a punto de eliminar el evento{" "}
+                    <strong>Cammada Fight Session #{numero}</strong>. Esta
+                    acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isPending}>
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete();
+                    }}
+                    disabled={isPending}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  >
+                    {isPending ? "Eliminando..." : "Eliminar"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </CardFooter>
     </Card>
