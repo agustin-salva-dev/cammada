@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/native-select";
 import { LuchadorFormData, RecordModalidad } from "@/features/luchadores/types";
 import Image from "next/image";
-import { PAISES, CIUDADES } from "@/config/paises";
+import { LocationSelect } from "@/components/ui/location-select";
 import { getEquipos } from "@/features/equipos/actions";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 
@@ -29,7 +29,7 @@ export const INITIAL_FORM: LuchadorFormData = {
   ultimoPeso: undefined,
   categoria: "",
   pais: "Argentina",
-  ciudad: "Salta",
+  ciudad: "Salta - Capital",
   equipo: "",
   records: [],
 };
@@ -271,113 +271,58 @@ export function LuchadorForm({
           Ubicación y equipo
         </h3>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`${formId}-pais`}>
-              País{" "}
-              <span className="text-destructive" aria-hidden>
-                *
-              </span>
-            </Label>
-            <NativeSelect
-              id={`${formId}-pais`}
-              required
-              className="w-full"
-              disabled={isPending}
-              value={form.pais}
-              onChange={(e) => {
-                const val = e.target.value;
-                setForm((prev) => ({
-                  ...prev,
-                  pais: val,
-                  ciudad:
-                    val === "Argentina"
-                      ? prev.ciudad === ""
-                        ? "Salta"
-                        : prev.ciudad
-                      : "",
-                }));
-              }}
-            >
-              <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-              {PAISES.map((p) => (
-                <NativeSelectOption key={p} value={p}>
-                  {p}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </div>
+        <LocationSelect
+          formId={formId}
+          pais={form.pais}
+          ciudad={form.ciudad}
+          onPaisChange={(nuevoPais, newCiudad) =>
+            setForm((prev) => ({ ...prev, pais: nuevoPais, ciudad: newCiudad }))
+          }
+          onCiudadChange={(newCiudad) => setField("ciudad", newCiudad)}
+          disabled={isPending}
+          required
+        />
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`${formId}-ciudad`}>
-              Ciudad{" "}
-              {form.pais === "Argentina" && (
-                <span className="text-destructive" aria-hidden>
-                  *
-                </span>
-              )}
-            </Label>
-            <NativeSelect
-              id={`${formId}-ciudad`}
-              required={form.pais === "Argentina"}
-              className="w-full"
-              disabled={isPending || form.pais !== "Argentina"}
-              value={form.ciudad}
-              onChange={(e) => setField("ciudad", e.target.value)}
-            >
-              <NativeSelectOption value="">
-                {form.pais !== "Argentina" ? "No aplica" : "Seleccionar"}
-              </NativeSelectOption>
-              {form.pais === "Argentina" &&
-                CIUDADES.map((c) => (
-                  <NativeSelectOption key={c} value={c}>
-                    {c}
-                  </NativeSelectOption>
-                ))}
-            </NativeSelect>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`${formId}-equipo`}>
-              Equipo{" "}
-              <span className="text-destructive" aria-hidden>
-                *
-              </span>
-            </Label>
-            <SearchableSelect
-              id={`${formId}-equipo`}
-              required
-              disabled={isPending}
-              value={isCreatingTeam ? "" : form.equipo}
-              onValueChange={(val) => {
-                setIsCreatingTeam(false);
-                setField("equipo", val);
-              }}
-              options={equipoOptions}
-              placeholder="Seleccionar equipo..."
-              searchPlaceholder="Buscar equipo..."
-              onCreateNew={() => {
-                setIsCreatingTeam(true);
-                setNuevoEquipo("");
-                setField("equipo", "");
-              }}
-              createNewText="Crear nuevo equipo..."
-            />
-            {isCreatingTeam && (
-              <div className="flex flex-col gap-1.5 mt-2">
-                <Label htmlFor={`${formId}-nuevo-equipo`}>
-                  Nombre del nuevo equipo
-                </Label>
-                <Input
-                  id={`${formId}-nuevo-equipo`}
-                  placeholder="Ej: Team Alpha"
-                  required
-                  value={nuevoEquipo}
-                  onChange={(e) => setNuevoEquipo(e.target.value)}
-                />
-              </div>
-            )}
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${formId}-equipo`}>
+            Equipo{" "}
+            <span className="text-destructive" aria-hidden>
+              *
+            </span>
+          </Label>
+          <SearchableSelect
+            id={`${formId}-equipo`}
+            required
+            disabled={isPending}
+            value={isCreatingTeam ? "" : form.equipo}
+            onValueChange={(val) => {
+              setIsCreatingTeam(false);
+              setField("equipo", val);
+            }}
+            options={equipoOptions}
+            placeholder="Seleccionar equipo..."
+            searchPlaceholder="Buscar equipo..."
+            onCreateNew={() => {
+              setIsCreatingTeam(true);
+              setNuevoEquipo("");
+              setField("equipo", "");
+            }}
+            createNewText="Crear nuevo equipo..."
+          />
+          {isCreatingTeam && (
+            <div className="flex flex-col gap-1.5 mt-2">
+              <Label htmlFor={`${formId}-nuevo-equipo`}>
+                Nombre del nuevo equipo
+              </Label>
+              <Input
+                id={`${formId}-nuevo-equipo`}
+                placeholder="Ej: Team Alpha"
+                required
+                value={nuevoEquipo}
+                onChange={(e) => setNuevoEquipo(e.target.value)}
+              />
+            </div>
+          )}
         </div>
       </section>
 
