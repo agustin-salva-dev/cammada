@@ -111,7 +111,7 @@ export function CombateForm({
   );
 
   const displayName = (l: LuchadorOption) =>
-    `${l.nombre} "${l.apodo}" ${l.apellido}`;
+    l.apodo ? `${l.nombre} "${l.apodo}" ${l.apellido}` : `${l.nombre} ${l.apellido}`;
 
   const peleador1Options = useMemo(() => {
     return luchadores

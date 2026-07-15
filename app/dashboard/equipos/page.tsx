@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { BadgePlus, Download, Users, Plus } from "lucide-react";
 import { IconButtonConfig } from "@/constants/ui";
 import { getEquipos } from "@/features/equipos/actions";
-import { CardEquipo } from "@/features/equipos/components/CardEquipo";
 import { ModalEquipo } from "@/features/equipos/components/ModalEquipo";
+import { EquiposClient } from "@/features/equipos/components/EquiposClient";
 
 export default async function Equipos() {
   const result = await getEquipos();
@@ -53,20 +53,8 @@ export default async function Equipos() {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {equipos.map((equipo) => (
-            <CardEquipo
-              key={equipo.id}
-              id={equipo.id}
-              nombre={equipo.nombre}
-              pais={equipo.pais}
-              ciudad={equipo.ciudad}
-              luchadoresCount={equipo._count?.luchadores ?? 0}
-            />
-          ))}
-        </div>
+        <EquiposClient equipos={equipos} />
       )}
     </main>
   );
 }
-

@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
-import { PAISES, CIUDADES } from "@/config/paises";
+import { LocationSelect } from "@/components/ui/location-select";
 import type { EquipoFormData } from "../zod";
 
 interface EquipoFormProps {
@@ -65,55 +61,17 @@ export function EquipoForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`${formId}-pais`}>
-            País{" "}
-            <span className="text-destructive" aria-hidden>
-              *
-            </span>
-          </Label>
-          <NativeSelect
-            id={`${formId}-pais`}
-            required
-            className="w-full"
-            disabled={isPending}
-            value={form.pais}
-            onChange={(e) => setField("pais", e.target.value)}
-          >
-            <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-            {PAISES.map((p) => (
-              <NativeSelectOption key={p} value={p}>
-                {p}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`${formId}-ciudad`}>
-            Ciudad{" "}
-            <span className="text-destructive" aria-hidden>
-              *
-            </span>
-          </Label>
-          <NativeSelect
-            id={`${formId}-ciudad`}
-            required
-            className="w-full"
-            disabled={isPending}
-            value={form.ciudad}
-            onChange={(e) => setField("ciudad", e.target.value)}
-          >
-            <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-            {CIUDADES.map((c) => (
-              <NativeSelectOption key={c} value={c}>
-                {c}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-      </div>
+      <LocationSelect
+        formId={formId}
+        pais={form.pais}
+        ciudad={form.ciudad}
+        onPaisChange={(nuevoPais, newCiudad) =>
+          setForm((prev) => ({ ...prev, pais: nuevoPais, ciudad: newCiudad }))
+        }
+        onCiudadChange={(newCiudad) => setField("ciudad", newCiudad)}
+        disabled={isPending}
+        required
+      />
     </form>
   );
 }
