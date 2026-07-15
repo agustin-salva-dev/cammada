@@ -66,7 +66,7 @@ export function getColumns(
             <span className="font-medium">
               {nombre} {apellido}
             </span>
-            {apodo && apodo !== "Sin apodo" && (
+            {apodo && apodo.trim() !== "" && (
               <Badge className="italic">&quot;{apodo}&quot;</Badge>
             )}
           </div>

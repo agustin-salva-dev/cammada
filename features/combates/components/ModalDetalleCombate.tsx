@@ -97,7 +97,11 @@ export function ModalDetalleCombate({
     nombre: string;
     apellido: string;
     apodo: string;
-  }) => `${p.nombre} "${p.apodo}" ${p.apellido}`;
+  }) => {
+    const apodoStr =
+      p.apodo && p.apodo.trim() !== "" ? ` "${p.apodo.trim()}"` : "";
+    return `${p.nombre} ${apodoStr} ${p.apellido}`;
+  };
 
   const tiempoFin =
     esFinalizado && combate.roundFin !== null && combate.roundFin !== undefined

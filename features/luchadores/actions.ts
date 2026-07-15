@@ -95,7 +95,7 @@ export async function createLuchador(rawInput: unknown) {
 
     const validatedData = validation.data;
     const nombre = validatedData.nombre || "Sin nombre";
-    const apodo = validatedData.apodo || "Sin apodo";
+    const apodo = (validatedData.apodo || "").trim();
     const apellido = validatedData.apellido || "Sin apellido";
     const pais = validatedData.pais || "Desconocido";
     const ciudad = validatedData.ciudad || "Desconocida";
@@ -178,7 +178,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
 
     const validatedData = validation.data;
     const nombre = validatedData.nombre || "Sin nombre";
-    const apodo = validatedData.apodo || "Sin apodo";
+    const apodo = (validatedData.apodo || "").trim();
     const apellido = validatedData.apellido || "Sin apellido";
     const pais = validatedData.pais || "Desconocido";
     const ciudad = validatedData.ciudad || "Desconocida";

@@ -9,13 +9,11 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
-import {
-  LuchadorFormData,
-  RecordModalidad,
-} from "@/features/luchadores/types";
+import { LuchadorFormData, RecordModalidad } from "@/features/luchadores/types";
 import Image from "next/image";
 import { PAISES, CIUDADES } from "@/config/paises";
 import { getEquipos } from "@/features/equipos/actions";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 interface ModalidadOption {
   id: string;
@@ -65,6 +63,7 @@ interface LuchadorFormProps {
   isPending?: boolean;
   categorias: CategoriaPesoOption[];
   modalidades: ModalidadOption[];
+  onChange?: (data: LuchadorFormData) => void;
 }
 
 export function LuchadorForm({
@@ -74,6 +73,7 @@ export function LuchadorForm({
   isPending = false,
   categorias,
   modalidades,
+  onChange,
 }: LuchadorFormProps) {
   const [form, setForm] = React.useState<LuchadorFormData>(
     initialData || INITIAL_FORM,
@@ -82,6 +82,14 @@ export function LuchadorForm({
 
   const [isCreatingTeam, setIsCreatingTeam] = React.useState(false);
   const [nuevoEquipo, setNuevoEquipo] = React.useState("");
+
+  const equipoOptions = React.useMemo(() => {
+    return equipos.map((eq) => ({ value: eq.nombre, label: eq.nombre }));
+  }, [equipos]);
+
+  React.useEffect(() => {
+    onChange?.(form);
+  }, [form, onChange]);
 
   React.useEffect(() => {
     let active = true;
@@ -336,32 +344,25 @@ export function LuchadorForm({
                 *
               </span>
             </Label>
-            <NativeSelect
+            <SearchableSelect
               id={`${formId}-equipo`}
               required
-              className="w-full"
               disabled={isPending}
-              value={isCreatingTeam ? "CREAR_NUEVO" : form.equipo}
-              onChange={(e) => {
-                if (e.target.value === "CREAR_NUEVO") {
-                  setIsCreatingTeam(true);
-                  setNuevoEquipo("");
-                } else {
-                  setIsCreatingTeam(false);
-                  setField("equipo", e.target.value);
-                }
+              value={isCreatingTeam ? "" : form.equipo}
+              onValueChange={(val) => {
+                setIsCreatingTeam(false);
+                setField("equipo", val);
               }}
-            >
-              <NativeSelectOption value="">Seleccionar</NativeSelectOption>
-              {equipos.map((eq) => (
-                <NativeSelectOption key={eq.id} value={eq.nombre}>
-                  {eq.nombre}
-                </NativeSelectOption>
-              ))}
-              <NativeSelectOption value="CREAR_NUEVO" className="text-primary">
-                + Crear nuevo equipo...
-              </NativeSelectOption>
-            </NativeSelect>
+              options={equipoOptions}
+              placeholder="Seleccionar equipo..."
+              searchPlaceholder="Buscar equipo..."
+              onCreateNew={() => {
+                setIsCreatingTeam(true);
+                setNuevoEquipo("");
+                setField("equipo", "");
+              }}
+              createNewText="Crear nuevo equipo..."
+            />
             {isCreatingTeam && (
               <div className="flex flex-col gap-1.5 mt-2">
                 <Label htmlFor={`${formId}-nuevo-equipo`}>
@@ -505,11 +506,7 @@ export function LuchadorForm({
                   disabled={isPending}
                   value={record.modalidad}
                   onChange={(e) =>
-                    actualizarRecord(
-                      record.id,
-                      "modalidad",
-                      e.target.value,
-                    )
+                    actualizarRecord(record.id, "modalidad", e.target.value)
                   }
                 >
                   <NativeSelectOption value="">Seleccionar</NativeSelectOption>
