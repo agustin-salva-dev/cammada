@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import Aurora from "@/components/Aurora";
 
 const spaceGroteskHeading = Space_Grotesk({
   subsets: ["latin"],
@@ -53,6 +54,20 @@ export default function RootLayout({
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>
+        <div
+          style={{
+            width: "100dvw",
+            height: "100dvh",
+            position: "absolute",
+            zIndex: "-10",
+          }}
+        >
+          <Aurora
+            colorStops={["#aa4fd5", "#a51fe8"]}
+            amplitude={1.1}
+            blend={0.3}
+          />
+        </div>
       </body>
     </html>
   );
