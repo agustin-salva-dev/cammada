@@ -1,20 +1,20 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { eventoSchema } from "./zod";
 import type { ActionResult } from "@/lib/types";
 import type { EventoConDetalle } from "./types";
 import { requirePermission, toAuthError } from "@/lib/action-guard";
 import { PERMISSIONS } from "@/constants/permissions";
 
+import { unstable_cache } from "next/cache";
+
 const DASHBOARD_EVENTOS_PATH = "/dashboard/eventos";
 
-export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
-  try {
-    await requirePermission(PERMISSIONS.EVENTOS.VER);
-
-    const eventos = await db.evento.findMany({
+const getCachedEventos = unstable_cache(
+  async () => {
+    return db.evento.findMany({
       orderBy: { numero: "desc" },
       include: {
         _count: {
@@ -57,6 +57,16 @@ export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
         },
       },
     });
+  },
+  ["eventos-list"],
+  { revalidate: false, tags: ["eventos"] }
+);
+
+export async function getEventos(): Promise<ActionResult<EventoConDetalle[]>> {
+  try {
+    await requirePermission(PERMISSIONS.EVENTOS.VER);
+
+    const eventos = await getCachedEventos();
     return { success: true, data: eventos };
   } catch (error) {
     const authError = toAuthError(error);
@@ -122,6 +132,7 @@ export async function createEvento(rawInput: unknown) {
       },
     });
 
+    revalidateTag("eventos", "max");
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true, data: evento };
   } catch (error) {
@@ -181,6 +192,7 @@ export async function updateEvento(id: string, rawInput: unknown) {
       },
     });
 
+    revalidateTag("eventos", "max");
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true, data: evento };
   } catch (error) {
@@ -218,6 +230,7 @@ export async function deleteEvento(id: string) {
       where: { id },
     });
 
+    revalidateTag("eventos", "max");
     revalidatePath(DASHBOARD_EVENTOS_PATH);
     return { success: true };
   } catch (error) {

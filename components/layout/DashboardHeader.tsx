@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { getRolConfig } from "@/lib/action-guard";
 
 import { IconButtonConfig } from "@/constants/ui";
 
@@ -15,11 +15,20 @@ export async function DashboardHeader() {
   const user = session?.user;
 
   const userRole = user?.role ?? "AYUDANTE";
-  const rolConfig = await db.rolConfig.findUnique({
-    where: { nombre: userRole },
-    select: { permisos: true },
-  });
-  const userPermissions = rolConfig?.permisos ?? [];
+  let userPermissions: string[] = [];
+  
+  if (userRole === "SUPERADMIN") {
+    userPermissions = [];
+  } else if (userRole === "ADMIN") {
+    userPermissions = [];
+  } else {
+    try {
+      const rolConfig = await getRolConfig(userRole);
+      userPermissions = rolConfig?.permisos ?? [];
+    } catch (e) {
+      console.error("Error al obtener rolConfig en Header:", e);
+    }
+  }
 
   const canManageAccounts =
     userRole === "SUPERADMIN" || userRole === "ADMIN";

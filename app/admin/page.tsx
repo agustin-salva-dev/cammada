@@ -1,6 +1,12 @@
 import { Suspense } from "react";
 import LoginCard from "@/features/auth/components/LoginCard";
 import { CammadaLogo } from "@/components/layout/CammadaLogo";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Inicia Sesión | Cammada",
+  description: "Accede a tu cuenta para ver panel de control de Cammada.",
+};
 
 export default function AdminPage() {
   return (

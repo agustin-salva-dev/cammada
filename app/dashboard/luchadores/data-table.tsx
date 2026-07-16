@@ -244,7 +244,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-1">
+      <div className="flex flex-col sm:flex-row items-center gap-5 sm:justify-between">
         <p className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} luchador(es) en total
         </p>

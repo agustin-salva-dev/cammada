@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cammada - Pagina Web Oficial",
-  description: "Mira los mejores combates de Salta, el evento mas mirado.",
+  title: "Cammada | Pagina Web Oficial",
+  description: "El mejor evento del norte.",
 };
 
 export default function RootLayout({

@@ -18,7 +18,9 @@ export default async function Luchadores() {
   ]);
 
   const luchadores: LuchadorRow[] =
-    result.success && result.data ? (result.data as LuchadorRow[]) : [];
+    result.success && result.data
+      ? (result.data.luchadores as LuchadorRow[])
+      : [];
 
   const categorias = [
     ...new Set(
@@ -38,14 +40,14 @@ export default async function Luchadores() {
 
   return (
     <main className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center gap-5 sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Luchadores</h1>
           <p className="text-sm text-muted-foreground">
             Gestiona todos los peleadores registrados en el sistema.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline">
             <Download strokeWidth={IconButtonConfig.strokeWidth} />
             Exportar luchadores
@@ -83,5 +85,3 @@ export default async function Luchadores() {
     </main>
   );
 }
-
-

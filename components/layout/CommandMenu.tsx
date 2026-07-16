@@ -538,7 +538,7 @@ export function CommandMenu({ userPermissions }: CommandMenuProps) {
       <Button
         variant="outline"
         onClick={() => setOpen(true)}
-        className="relative h-9 w-full max-w-sm justify-start gap-2 rounded-lg bg-muted/50 px-3 text-sm text-muted-foreground shadow-none hover:bg-muted/80 sm:w-64"
+        className="relative h-9 w-1/2 justify-start gap-2 rounded-lg bg-muted/50 px-3 text-sm text-muted-foreground shadow-none hover:bg-muted/80 sm:w-64"
       >
         <Search className="h-4 w-4 shrink-0" />
         <span className="hidden sm:inline-flex">Buscar...</span>

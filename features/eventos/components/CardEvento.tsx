@@ -97,13 +97,34 @@ const ESTADO_BADGE_VARIANT: Record<
   CANCELADO: "destructive",
 };
 
+const MESES_ABR = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sep",
+  "oct",
+  "nov",
+  "dic",
+];
+
 function formatFechaCorta(fechaStr: string): string {
-  const date = new Date(fechaStr);
-  return date.toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const parts = fechaStr.split("-");
+  if (parts.length === 3) {
+    const day = parts[2];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const year = parts[0];
+
+    if (monthIndex >= 0 && monthIndex < 12) {
+      const monthLabel = MESES_ABR[monthIndex];
+      return `${day} de ${monthLabel} de ${year}`;
+    }
+  }
+  return fechaStr;
 }
 
 export function CardEvento({
@@ -237,62 +258,60 @@ export function CardEvento({
           <Download className="h-3.5 w-3.5" />
           Descargar cartelera
         </Button>
-        <div className="flex justify-between items-center w-full">
-          <div className="flex gap-1">
-            <ModalEvento
-              evento={eventoData}
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-200"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              }
-            />
+        <div className="flex gap-1 ml-auto">
+          <ModalEvento
+            evento={eventoData}
+            trigger={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-200"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            }
+          />
 
-            <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+          <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+                disabled={isPending}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="border-border/50 bg-background/95 backdrop-blur-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                  <ShieldAlert className="h-5 w-5" />
+                  ¿Confirmar eliminación?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground">
+                  Estás a punto de eliminar el evento{" "}
+                  <strong>Cammada Fight Session #{numero}</strong>. Esta acción
+                  no se puede deshacer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isPending}>
+                  Cancelar
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete();
+                  }}
                   disabled={isPending}
+                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="border-border/50 bg-background/95 backdrop-blur-md">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-                    <ShieldAlert className="h-5 w-5" />
-                    ¿Confirmar eliminación?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-muted-foreground">
-                    Estás a punto de eliminar el evento{" "}
-                    <strong>Cammada Fight Session #{numero}</strong>. Esta
-                    acción no se puede deshacer.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isPending}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDelete();
-                    }}
-                    disabled={isPending}
-                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                  >
-                    {isPending ? "Eliminando..." : "Eliminar"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                  {isPending ? "Eliminando..." : "Eliminar"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardFooter>
     </Card>
