@@ -83,14 +83,46 @@ const ESTADO_BADGE_VARIANT: Record<
   CANCELADO: "destructive",
 };
 
+const DIAS_SEMANA = [
+  "domingo",
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+];
+
+const MESES = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
+
 function formatFecha(fechaStr: string): string {
-  const date = new Date(fechaStr);
-  return date.toLocaleDateString("es-AR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  // fechaStr viene como "YYYY-MM-DD"
+  const parts = fechaStr.split("-");
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10);
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+
+    const date = new Date(year, monthIndex, day);
+    const dayOfWeek = DIAS_SEMANA[date.getDay()];
+    const monthName = MESES[monthIndex];
+
+    return `${dayOfWeek}, ${day} de ${monthName} de ${year}`;
+  }
+  return fechaStr;
 }
 
 export function ModalDetalleEvento({

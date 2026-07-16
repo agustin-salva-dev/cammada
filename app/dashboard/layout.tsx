@@ -2,6 +2,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { SidebarTriggerContainer } from "@/components/ui/SidebarTriggerContainer";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Panel de control - Cammada",
+  description: "Gestiona eventos, luchadores y combates de Cammada.",
+};
 
 export default function DashboardLayout({
   children,

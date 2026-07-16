@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { luchadorSchema } from "./zod";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { Prisma } from "@prisma/client";
 import type { ActionResult } from "@/lib/types";
 import { requirePermission, toAuthError } from "@/lib/action-guard";
@@ -25,13 +25,11 @@ type LuchadorSelect = {
   equipo: { nombre: string } | null;
 };
 
-export async function getLuchadores(): Promise<
-  ActionResult<LuchadorConDetalle[]>
-> {
-  try {
-    await requirePermission(PERMISSIONS.LUCHADORES.VER);
+import { unstable_cache } from "next/cache";
 
-    const luchadores = await db.luchador.findMany({
+const getCachedLuchadores = unstable_cache(
+  async () => {
+    return db.luchador.findMany({
       include: {
         categoria: true,
         equipo: true,
@@ -45,7 +43,57 @@ export async function getLuchadores(): Promise<
         createdAt: "desc",
       },
     });
-    return { success: true, data: luchadores };
+  },
+  ["luchadores-list"],
+  { revalidate: false, tags: ["luchadores"] },
+);
+
+const getCachedLuchadoresSelect = unstable_cache(
+  async () => {
+    return db.luchador.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        apodo: true,
+        categoriaId: true,
+        equipo: { select: { nombre: true } },
+      },
+      orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
+    });
+  },
+  ["luchadores-select"],
+  { revalidate: false, tags: ["luchadores"] },
+);
+
+export async function getLuchadores(
+  page?: number,
+  limit?: number,
+): Promise<ActionResult<{ luchadores: LuchadorConDetalle[]; total: number }>> {
+  try {
+    await requirePermission(PERMISSIONS.LUCHADORES.VER);
+
+    const allLuchadores = await getCachedLuchadores();
+
+    if (page !== undefined && limit !== undefined) {
+      const offset = (page - 1) * limit;
+      const paginated = allLuchadores.slice(offset, offset + limit);
+      return {
+        success: true,
+        data: {
+          luchadores: paginated,
+          total: allLuchadores.length,
+        },
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        luchadores: allLuchadores,
+        total: allLuchadores.length,
+      },
+    };
   } catch (error) {
     const authError = toAuthError(error);
     if (authError) return authError;
@@ -60,17 +108,7 @@ export async function getLuchadoresSelect(): Promise<
   try {
     await requirePermission(PERMISSIONS.LUCHADORES.VER);
 
-    const luchadores = await db.luchador.findMany({
-      select: {
-        id: true,
-        nombre: true,
-        apellido: true,
-        apodo: true,
-        categoriaId: true,
-        equipo: { select: { nombre: true } },
-      },
-      orderBy: [{ apellido: "asc" }, { nombre: "asc" }],
-    });
+    const luchadores = await getCachedLuchadoresSelect();
     return { success: true, data: luchadores };
   } catch (error) {
     const authError = toAuthError(error);
@@ -153,6 +191,7 @@ export async function createLuchador(rawInput: unknown) {
       return luchador;
     });
 
+    revalidateTag("luchadores", "max");
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
@@ -241,6 +280,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
       return luchador;
     });
 
+    revalidateTag("luchadores", "max");
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
@@ -258,6 +298,7 @@ export async function deleteLuchador(id: string) {
     await db.luchador.delete({
       where: { id },
     });
+    revalidateTag("luchadores", "max");
     revalidatePath("/dashboard/luchadores");
     return { success: true };
   } catch (error) {

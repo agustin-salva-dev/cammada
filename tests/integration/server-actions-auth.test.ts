@@ -36,9 +36,9 @@ vi.mock("@/lib/db", () => ({
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+  unstable_cache: vi.fn((cb) => cb),
 }));
-
-// --- Importaciones de los módulos bajo prueba ---
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";

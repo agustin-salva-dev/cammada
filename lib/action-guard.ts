@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -11,7 +12,7 @@ export interface AuthorizedUser {
   role: string;
 }
 
-async function getSession(): Promise<AuthorizedUser> {
+const getSession = cache(async (): Promise<AuthorizedUser> => {
   const session = await auth();
 
   if (!session?.user?.id || !session.user.role) {
@@ -25,7 +26,7 @@ async function getSession(): Promise<AuthorizedUser> {
     name: session.user.name,
     role: session.user.role,
   };
-}
+});
 
 export class ActionUnauthorizedError extends Error {
   constructor(message = "No autenticado.") {
@@ -45,6 +46,13 @@ export async function getAuthenticatedUser(): Promise<AuthorizedUser> {
   return getSession();
 }
 
+export const getRolConfig = cache(async (role: string) => {
+  return db.rolConfig.findUnique({
+    where: { nombre: role },
+    select: { permisos: true },
+  });
+});
+
 export async function requirePermission(
   permission: string,
 ): Promise<AuthorizedUser> {
@@ -63,10 +71,7 @@ export async function requirePermission(
     return user;
   }
 
-  const rolConfig = await db.rolConfig.findUnique({
-    where: { nombre: user.role },
-    select: { permisos: true },
-  });
+  const rolConfig = await getRolConfig(user.role);
 
   if (!rolConfig) {
     throw new ActionForbiddenError("Tu rol no está configurado en el sistema.");
@@ -80,6 +85,7 @@ export async function requirePermission(
 
   return user;
 }
+
 
 export async function hasPermission(permission: string): Promise<boolean> {
   try {
