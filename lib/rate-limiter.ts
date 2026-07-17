@@ -35,6 +35,10 @@ function getRatelimiter(): Ratelimit | null {
 }
 
 export async function checkRateLimit(key: string): Promise<RateLimitResult> {
+  if (process.env.NODE_ENV === "test") {
+    return { allowed: true };
+  }
+
   const limiter = getRatelimiter();
 
   if (!limiter) {
