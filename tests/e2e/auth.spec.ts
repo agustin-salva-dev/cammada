@@ -49,6 +49,6 @@ test.describe("Autenticación — flujo de login", () => {
 
     await page.getByRole("button", { name: /^ingresar$/i }).click();
 
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
   });
 });

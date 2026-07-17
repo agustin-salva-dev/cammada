@@ -1,17 +1,18 @@
 import Navbar from "@/components/layout/NavBar";
 import { Button } from "@/components/ui/button";
 import SpotlightCard from "@/components/SpotlightCard";
-import { Swords } from "lucide-react";
+import { Swords, Medal } from "lucide-react";
 import ShinyText from "@/components/ShinyText";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-    <div className="h-dvh relative flex gap-28 items-center justify-center">
+    <div className="min-h-dvh w-full relative flex flex-col lg:flex-row gap-12 lg:gap-28 items-center justify-center px-4 md:px-8 lg:px-[45px] py-12 lg:py-0">
       <Navbar />
-      <div className="flex flex-col items-baseline">
-        <div className="flex flex-col items-baseline gap-6">
-          <div className="pl-2.5 flex gap-[3px] items-center">
-            <div className="text-[10px] leading-2.5 flex flex-col items-baseline">
+      <div className="flex flex-col items-center lg:items-baseline">
+        <div className="flex flex-col items-center lg:items-baseline gap-4 lg:gap-6">
+          <div className="flex gap-[3px] items-center">
+            <div className="pl-[5px] text-[10px] leading-2.5 flex flex-col items-baseline">
               <h3 className="font-extralight">FIGHT</h3>
               <h3 className="font-medium">SESSION</h3>
             </div>
@@ -19,19 +20,19 @@ export default function Home() {
               #10
             </h2>
           </div>
-          <h1 className="text-[126px] font-heading font-black leading-[90px] tracking-tighter drop-shadow-2xl">
+          <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[126px] font-heading font-black leading-none lg:leading-[90px] tracking-tight drop-shadow-2xl text-center lg:text-start">
             CA<span className="text-primary">MMA</span>DA
           </h1>
-          <p className="pl-2.5 text-start text-sm font-thin">
+          <p className="pl-[5px] 66text-center lg:text-start text-sm font-thin max-w-sm lg:max-w-none">
             Sigue los resultados <span className="font-light">en vivo</span>,
             explora los <span className="font-light">rankings</span>, las{" "}
-            <span className="font-light">carteleras</span> <br /> y todos los
-            detalles de los <span className="font-light">enfrentamientos</span>{" "}
-            que definirán a los próximos{" "}
+            <span className="font-light">carteleras</span> y todos los detalles
+            de los <span className="font-light">enfrentamientos</span> que
+            definirán a los próximos{" "}
             <span className="text-primary font-medium">campeones.</span>
           </p>
         </div>
-        <div className="flex gap-4 mt-10 pl-2.5">
+        <div className="pl-[5px] flex gap-4 mt-8 justify-center lg:justify-start">
           <Button className="cursor-pointer">Ver Cartelera #10</Button>
           <Button className="cursor-pointer" variant="ghost">
             Ver rankings
@@ -39,7 +40,7 @@ export default function Home() {
         </div>
       </div>
       <SpotlightCard
-        className="group z-0 bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/50 hover:scale-101 hover:-translate-y-1 translate-x-1.5 drop-shadow-xl transition-all duration-400 ease-in-out"
+        className="group z-0 bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/50 hover:scale-101 hover:-translate-y-1 translate-x-0 lg:translate-x-1.5 drop-shadow-xl transition-all duration-400 ease-in-out w-full max-w-md"
         spotlightColor="rgba(165, 31, 232, 1)"
       >
         <p className="drop-shadow-xl text-foreground opacity-[0.017] font-heading text-[365px] absolute left-[-110px] top-[-70px] font-bold italic -rotate-10">
@@ -66,11 +67,6 @@ export default function Home() {
             disabled={false}
             className="drop-shadow-lg font-heading font-semibold text-primary text-3xl tracking-normal"
           />
-          {/* 
-          <p className="drop-shadow-lg font-heading font-semibold text-primary text-3xl tracking-normal">
-            03D : 04H : 23M : 05S
-          </p>
- */}
         </div>
         <p className="drop-shadow-xl text-muted-foreground text-xs mt-3.5 text-center">
           Cartelera Estelar
@@ -105,9 +101,10 @@ export default function Home() {
           </div>
         </div>
         <div className="flex gap-4 items-center justify-center mt-6">
-          <p className="drop-shadow-xl bg-primary text-center w-fit py-[3px] px-2.5 rounded-lg font-medium text-sm">
-            Titulo del Peso Pluma
-          </p>
+          <div className="flex items-center gap-1 drop-shadow-xl bg-primary text-center w-fit py-[3px] px-2.5 rounded-lg font-medium text-sm">
+            <Medal size={15} strokeWidth={1} />
+            <p>Titulo del Peso Pluma</p>
+          </div>
           <p className="drop-shadow-xl bg-trasparent/50 backdrop-blur-sm border border-border text-center w-fit py-[3px] px-2.5 rounded-lg font-medium text-sm">
             MMA Pro
           </p>
@@ -156,6 +153,7 @@ export default function Home() {
           Club Sargento Cabral - Stgo. del Estero 1644-1698 - Desde las 11AM.
         </p>
       </SpotlightCard>
+      <Footer />
     </div>
   );
 }

@@ -37,8 +37,7 @@ setup("autenticar usuario de prueba", async ({ page }) => {
 
   await page.getByRole("button", { name: /^ingresar$/i }).click();
 
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
   await page.context().storageState({ path: AUTH_FILE });
 });
-

@@ -24,7 +24,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Cammada | Pagina Web Oficial",
-  description: "El mejor evento del norte.",
+  description:
+    "Sigue los resultados en vivo, explora los rankings, las carteleras y todos los detalles de los enfrentamientos que definirán a los próximos campeones.",
 };
 
 export default function RootLayout({
@@ -56,10 +57,10 @@ export default function RootLayout({
         </ThemeProvider>
         <div
           style={{
-            width: "100dvw",
-            height: "100dvh",
-            position: "absolute",
+            position: "fixed",
+            inset: 0,
             zIndex: "-10",
+            pointerEvents: "none",
           }}
         >
           <Aurora
