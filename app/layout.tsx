@@ -48,27 +48,27 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: "-10",
+              pointerEvents: "none",
+            }}
+          >
+            <Aurora
+              colorStops={["#aa4fd5", "#a51fe8"]}
+              amplitude={1.1}
+              blend={0.3}
+            />
+          </div>
         </ThemeProvider>
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: "-10",
-            pointerEvents: "none",
-          }}
-        >
-          <Aurora
-            colorStops={["#aa4fd5", "#a51fe8"]}
-            amplitude={1.1}
-            blend={0.3}
-          />
-        </div>
       </body>
     </html>
   );

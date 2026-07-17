@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
+import { useTheme } from "next-themes";
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -118,6 +119,13 @@ interface AuroraProps {
 }
 
 export default function Aurora(props: AuroraProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     colorStops = ["#5227FF", "#7cff67", "#5227FF"],
     amplitude = 1.0,
@@ -129,6 +137,8 @@ export default function Aurora(props: AuroraProps) {
   const ctnDom = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!mounted || resolvedTheme !== "dark") return;
+
     const ctn = ctnDom.current;
     if (!ctn) return;
 
@@ -209,7 +219,11 @@ export default function Aurora(props: AuroraProps) {
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [amplitude]);
+  }, [amplitude, mounted, resolvedTheme, blend, colorStops]);
+
+  if (!mounted || resolvedTheme !== "dark") {
+    return null;
+  }
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }
