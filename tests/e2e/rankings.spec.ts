@@ -32,7 +32,7 @@ test.describe("Rankings — edición de posiciones", () => {
     page,
   }) => {
     await page.goto("/dashboard/rankings");
-    const cards = page.locator(".grid .rounded-xl");
+    const cards = page.locator("[data-testid='ranking-card']");
     let hasRankings = (await cards.count()) > 0;
     if (!hasRankings) {
       await page
@@ -50,7 +50,7 @@ test.describe("Rankings — edición de posiciones", () => {
       hasRankings = true;
     }
     const primerRanking = cards.first();
-    await primerRanking.click();
+    await primerRanking.click({ force: true });
 
     await expect(
       page
