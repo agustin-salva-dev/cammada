@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 
 interface Props {
@@ -42,12 +43,12 @@ export default function Error({ error, reset }: Props) {
         >
           Intentar de nuevo
         </button>
-        <a
-          href="/dashboard"
+        <Link
+          href="/"
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted active:scale-95"
         >
-          Ir al Dashboard
-        </a>
+          Ir al inicio
+        </Link>
       </div>
     </main>
   );

@@ -1,5 +1,9 @@
 export const ROUTES = {
   HOME: "/",
+  EVENTOS: "/eventos",
+  RANKINGS: "/rankings",
+  OPINIONES: "/opiniones",
+  PREDICCIONES: "/predicciones",
   ADMIN: "/admin",
   ADMIN_REGISTER: "/admin/register",
   DASHBOARD: "/dashboard",
@@ -12,3 +16,4 @@ export const ROUTES = {
   DASHBOARD_MODALIDADES: "/dashboard/modalidades",
   DASHBOARD_SETTINGS: "/dashboard/settings",
 } as const;
+

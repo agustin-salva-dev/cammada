@@ -5,21 +5,24 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
-import Aurora from "@/components/Aurora";
+import AuroraBackground from "@/components/AuroraBackground";
 
 const spaceGroteskHeading = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-heading",
+  display: "swap",
 });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -62,7 +65,7 @@ export default function RootLayout({
               pointerEvents: "none",
             }}
           >
-            <Aurora
+            <AuroraBackground
               colorStops={["#aa4fd5", "#a51fe8"]}
               amplitude={1.1}
               blend={0.3}

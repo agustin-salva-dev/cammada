@@ -25,10 +25,10 @@ export default function NotFound() {
       </div>
 
       <Link
-        href="/dashboard"
+        href="/"
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:brightness-110 active:scale-95"
       >
-        Ir al Dashboard
+        Ir al inicio
       </Link>
     </main>
   );
