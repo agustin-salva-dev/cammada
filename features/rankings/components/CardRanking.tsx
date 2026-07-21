@@ -143,7 +143,7 @@ export function CardRanking({
   }
 
   return (
-    <Card className="group flex h-fit flex-col gap-0 py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
+    <Card data-testid="ranking-card" className="group flex h-fit flex-col gap-0 py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
       <CardHeader className="flex flex-row items-start justify-between gap-3 px-4 pt-4 pb-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">

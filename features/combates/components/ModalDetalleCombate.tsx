@@ -48,7 +48,11 @@ export interface CombateDetalleData {
   estado: EstadoCombate;
   numeroPelea: number;
   horarioEstimado?: string | null;
-  categoriaPeso: { nombre: string };
+  categoriaPeso: {
+    nombre: string;
+    limiteInferior?: number | null;
+    limiteSuperior?: number | null;
+  };
   modalidad: { nombre: string };
   evento: { numero: number };
   ganador?: { nombre: string; apellido: string; apodo: string } | null;
@@ -190,7 +194,14 @@ export function ModalDetalleCombate({
           <DetailRow
             icon={Shield}
             label="Categoría de peso"
-            value={combate.categoriaPeso.nombre}
+            value={
+              combate.categoriaPeso.limiteInferior !== undefined &&
+              combate.categoriaPeso.limiteSuperior !== undefined &&
+              combate.categoriaPeso.limiteInferior !== null &&
+              combate.categoriaPeso.limiteSuperior !== null
+                ? `${combate.categoriaPeso.nombre} ${combate.categoriaPeso.limiteInferior}-${combate.categoriaPeso.limiteSuperior}kg`
+                : combate.categoriaPeso.nombre
+            }
           />
           <DetailRow
             icon={Star}
