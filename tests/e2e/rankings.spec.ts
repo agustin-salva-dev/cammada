@@ -50,7 +50,7 @@ test.describe("Rankings — edición de posiciones", () => {
       hasRankings = true;
     }
     const primerRanking = cards.first();
-    await primerRanking.click({ force: true });
+    await primerRanking.getByRole("button", { name: /editar ranking/i }).click();
 
     await expect(
       page

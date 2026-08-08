@@ -41,12 +41,9 @@ export function RankingFighterList({
             key={item.luchadorId}
             className="flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 transition-colors hover:bg-accent/30"
           >
-            {/* Posición */}
             <span className="w-7 shrink-0 text-center text-sm font-bold text-primary">
               #{index + 1}
             </span>
-
-            {/* Info peleador */}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold leading-tight">
                 {item.apellido}, {item.nombre}
@@ -61,7 +58,6 @@ export function RankingFighterList({
               </p>
             </div>
 
-            {/* Controles */}
             <div className="flex shrink-0 items-center gap-0.5">
               <Button
                 type="button"
