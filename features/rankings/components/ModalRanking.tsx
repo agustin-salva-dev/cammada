@@ -29,20 +29,15 @@ import type {
   RankingItemDraft,
 } from "../types";
 
-// ─── Constantes ───────────────────────────────────────────────────────────────
-
 const LIBRA_X_LIBRA = "__LIBRA_X_LIBRA__";
 const SUGGESTIONS_LIMIT = 5;
 const SEARCH_RESULTS_LIMIT = 8;
-
-// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ModalRankingProps {
   trigger: React.ReactNode;
   luchadores: LuchadorSelectItem[];
   modalidades: ModalidadSelectItem[];
   categoriasPeso: CategoriaPesoSelectItem[];
-  /** Cuando se pasa, el modal edita el ranking existente */
   ranking?: {
     id: string;
     modalidadId: string;
@@ -51,8 +46,6 @@ interface ModalRankingProps {
     items: RankingItemDraft[];
   };
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function swapItems<T>(arr: T[], i: number, j: number): T[] {
   const next = [...arr];
@@ -69,8 +62,6 @@ function getApodo(apodo: string): string | null {
   return apodo;
 }
 
-// ─── Componente ───────────────────────────────────────────────────────────────
-
 export function ModalRanking({
   trigger,
   luchadores,
@@ -83,22 +74,20 @@ export function ModalRanking({
 
   const isEditing = !!ranking;
 
-  // Form state
   const [modalidadId, setModalidadId] = React.useState(
-    ranking?.modalidadId ?? ""
+    ranking?.modalidadId ?? "",
   );
   const [categoriaPesoId, setCategoriaPesoId] = React.useState<string>(
-    ranking?.categoriaPesoId ?? LIBRA_X_LIBRA
+    ranking?.categoriaPesoId ?? LIBRA_X_LIBRA,
   );
   const [campeonId, setCampeonId] = React.useState<string>(
-    ranking?.campeonId ?? ""
+    ranking?.campeonId ?? "",
   );
   const [rankingItems, setRankingItems] = React.useState<RankingItemDraft[]>(
-    ranking?.items ?? []
+    ranking?.items ?? [],
   );
   const [search, setSearch] = React.useState("");
 
-  // Reset al cerrar
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (!next) {
@@ -110,12 +99,8 @@ export function ModalRanking({
     }
   }
 
-  // ─── Filtrado de luchadores ────────────────────────────────────────────────
-
   const isLibraXLibra = categoriaPesoId === LIBRA_X_LIBRA;
-  const addedIds = new Set(rankingItems.map((i) => i.luchadorId));
 
-  /** Luchadores de la categoría actual (se usa para sugerir campeones) */
   const luchadoresDeCategoria = React.useMemo(() => {
     return luchadores.filter((l) => {
       if (isLibraXLibra) return true;
@@ -123,18 +108,16 @@ export function ModalRanking({
     });
   }, [luchadores, categoriaPesoId, isLibraXLibra]);
 
-  /** Luchadores disponibles para agregar (según categoría y no añadidos ya) */
   const availableByCat = React.useMemo(() => {
+    const addedIds = new Set(rankingItems.map((i) => i.luchadorId));
     return luchadoresDeCategoria.filter((l) => !addedIds.has(l.id));
-  }, [luchadoresDeCategoria, addedIds]);
+  }, [luchadoresDeCategoria, rankingItems]);
 
-  /** Sugerencias iniciales (primeros 5 sin búsqueda activa) */
   const suggestions = React.useMemo(() => {
     if (search.trim()) return [];
     return availableByCat.slice(0, SUGGESTIONS_LIMIT);
   }, [availableByCat, search]);
 
-  /** Resultados de búsqueda */
   const searchResults = React.useMemo(() => {
     if (!search.trim()) return [];
     const q = search.toLowerCase();
@@ -143,24 +126,13 @@ export function ModalRanking({
         (l) =>
           l.nombre.toLowerCase().includes(q) ||
           l.apellido.toLowerCase().includes(q) ||
-          (l.apodo && l.apodo.toLowerCase().includes(q))
+          (l.apodo && l.apodo.toLowerCase().includes(q)),
       )
       .slice(0, SEARCH_RESULTS_LIMIT);
   }, [availableByCat, search]);
 
   const displayedFighters = search.trim() ? searchResults : suggestions;
 
-  // Si cambia la categoría y el campeón actual no pertenece a los luchadores de esa categoría, lo reseteamos
-  React.useEffect(() => {
-    if (campeonId) {
-      const exists = luchadoresDeCategoria.some((l) => l.id === campeonId);
-      if (!exists) {
-        setCampeonId("");
-      }
-    }
-  }, [categoriaPesoId, luchadoresDeCategoria, campeonId]);
-
-  // ─── Acciones sobre la lista ───────────────────────────────────────────────
 
   function handleAddFighter(luchador: LuchadorSelectItem) {
     setRankingItems((prev) =>
@@ -174,7 +146,7 @@ export function ModalRanking({
           posicion: prev.length + 1,
           equipo: luchador.equipo.nombre,
         },
-      ])
+      ]),
     );
     setSearch("");
   }
@@ -182,7 +154,7 @@ export function ModalRanking({
   function handleMoveUp(index: number) {
     if (index === 0) return;
     setRankingItems((prev) =>
-      normalizePositions(swapItems(prev, index, index - 1))
+      normalizePositions(swapItems(prev, index, index - 1)),
     );
   }
 
@@ -195,11 +167,9 @@ export function ModalRanking({
 
   function handleRemove(index: number) {
     setRankingItems((prev) =>
-      normalizePositions(prev.filter((_, i) => i !== index))
+      normalizePositions(prev.filter((_, i) => i !== index)),
     );
   }
-
-  // ─── Submit ────────────────────────────────────────────────────────────────
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -230,7 +200,7 @@ export function ModalRanking({
             isEditing
               ? "Ranking actualizado con éxito"
               : "Ranking creado con éxito",
-            { position: "top-center" }
+            { position: "top-center" },
           );
           setOpen(false);
         } else {
@@ -246,7 +216,6 @@ export function ModalRanking({
     ? `form-edit-ranking-${ranking.id}`
     : "form-create-ranking";
 
-  // Etiqueta del panel de peleadores disponibles
   const fighterPanelLabel = search.trim()
     ? `Resultados de búsqueda (${searchResults.length})`
     : `Sugerencias ${isLibraXLibra ? "(todos los pesos)" : ""}`;
@@ -272,10 +241,8 @@ export function ModalRanking({
           onSubmit={handleSubmit}
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
-          {/* ── Configuración ── */}
           <div className="shrink-0 border-b border-border px-6 py-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Modalidad */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${formId}-modalidad`}>
                   Modalidad{" "}
@@ -302,7 +269,6 @@ export function ModalRanking({
                 </NativeSelect>
               </div>
 
-              {/* Categoría de peso */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${formId}-categoria`}>
                   Categoría de peso{" "}
@@ -315,9 +281,18 @@ export function ModalRanking({
                   className="w-full"
                   value={categoriaPesoId}
                   onChange={(e) => {
-                    setCategoriaPesoId(e.target.value);
-                    // Limpiar búsqueda al cambiar categoría
+                    const newCatId = e.target.value;
+                    setCategoriaPesoId(newCatId);
                     setSearch("");
+                    if (campeonId) {
+                      const isL4L = newCatId === LIBRA_X_LIBRA;
+                      const exists = luchadores.some(
+                        (l) => l.id === campeonId && (isL4L || l.categoriaId === newCatId),
+                      );
+                      if (!exists) {
+                        setCampeonId("");
+                      }
+                    }
                   }}
                   disabled={isPending}
                 >
@@ -333,9 +308,11 @@ export function ModalRanking({
               </div>
             </div>
 
-            {/* Campeón de la división */}
             <div className="mt-4 flex flex-col gap-1.5">
-              <Label htmlFor={`${formId}-campeon`} className="flex items-center gap-1.5">
+              <Label
+                htmlFor={`${formId}-campeon`}
+                className="flex items-center gap-1.5"
+              >
                 <Crown className="h-4 w-4 text-yellow-500" />
                 Campeón de la división
                 <span className="text-muted-foreground text-xs font-normal">
@@ -353,10 +330,13 @@ export function ModalRanking({
                   Sin Campeón (Vacante)
                 </NativeSelectOption>
                 {luchadoresDeCategoria.map((l) => {
-                  const apodoStr = getApodo(l.apodo) ? ` "${getApodo(l.apodo)}"` : "";
+                  const apodoStr = getApodo(l.apodo)
+                    ? ` "${getApodo(l.apodo)}"`
+                    : "";
                   return (
                     <NativeSelectOption key={l.id} value={l.id}>
-                      {l.apellido}, {l.nombre}{apodoStr} ({l.equipo.nombre})
+                      {l.apellido}, {l.nombre}
+                      {apodoStr} ({l.equipo.nombre})
                     </NativeSelectOption>
                   );
                 })}
@@ -364,9 +344,7 @@ export function ModalRanking({
             </div>
           </div>
 
-          {/* ── Cuerpo scrolleable ── */}
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-4">
-            {/* Buscador */}
             <div className="flex flex-col gap-2">
               <Label>Agregar peleador</Label>
               <div className="relative">
@@ -384,7 +362,6 @@ export function ModalRanking({
                 />
               </div>
 
-              {/* Panel de sugerencias / resultados */}
               {displayedFighters.length > 0 && (
                 <div className="rounded-lg border border-border bg-card shadow-sm">
                   <p className="border-b border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground">
@@ -420,7 +397,6 @@ export function ModalRanking({
                 </div>
               )}
 
-              {/* Mensaje sin resultados (solo al buscar) */}
               {search.trim() && searchResults.length === 0 && (
                 <p className="rounded-lg border border-dashed border-border/60 px-4 py-3 text-sm text-muted-foreground">
                   Sin resultados para &quot;{search}&quot;
@@ -428,7 +404,6 @@ export function ModalRanking({
                 </p>
               )}
 
-              {/* Mensaje sin peleadores disponibles (sin búsqueda) */}
               {!search.trim() && availableByCat.length === 0 && (
                 <p className="rounded-lg border border-dashed border-border/60 px-4 py-3 text-sm text-muted-foreground">
                   {isLibraXLibra
@@ -440,7 +415,6 @@ export function ModalRanking({
 
             <Separator />
 
-            {/* Lista ordenada */}
             <div className="flex flex-col gap-2">
               <Label>
                 Ranking ({rankingItems.length} peleador

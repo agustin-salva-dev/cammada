@@ -67,7 +67,6 @@ export function ModalVerRankingCompleto({
                   key={item.id}
                   className="flex items-center gap-3 rounded-lg border border-border/50 bg-card px-4 py-3 transition-colors hover:bg-accent/20"
                 >
-                  {/* Posición / Medalla */}
                   <div className="flex w-8 shrink-0 items-center justify-center">
                     {item.posicion <= 3 ? (
                       <Medal
@@ -80,7 +79,6 @@ export function ModalVerRankingCompleto({
                     )}
                   </div>
 
-                  {/* Info peleador */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold leading-tight">
                       {item.luchador.apellido}, {item.luchador.nombre}
@@ -92,7 +90,6 @@ export function ModalVerRankingCompleto({
                     )}
                   </div>
 
-                  {/* País */}
                   <Badge variant="outline" className="shrink-0 text-xs">
                     {item.luchador.pais}
                   </Badge>
