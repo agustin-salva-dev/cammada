@@ -28,6 +28,7 @@ import {
   Medal,
   Settings,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 
 const mainNavItems = [
@@ -76,6 +77,14 @@ const configItems = [
     title: "Modalidades de Combate",
     url: "/dashboard/modalidades",
     icon: Medal,
+  },
+];
+
+const comunidadItems = [
+  {
+    title: "Opiniones",
+    url: "/dashboard/opiniones",
+    icon: MessageSquare,
   },
 ];
 
@@ -140,6 +149,28 @@ export default function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {configItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.url}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Comunidad</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {comunidadItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild

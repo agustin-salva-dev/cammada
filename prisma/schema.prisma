@@ -7,17 +7,18 @@ datasource db {
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String?
-  nombre    String
-  telefono  String?
-  imagen    String?
-  rol       String    @default("AYUDANTE")
-  rolConfig RolConfig @relation(fields: [rol], references: [nombre])
-  cuentas   Cuenta[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String             @id @default(uuid())
+  email      String             @unique
+  password   String?
+  nombre     String
+  telefono   String?
+  imagen     String?
+  rol        String             @default("AYUDANTE")
+  rolConfig  RolConfig          @relation(fields: [rol], references: [nombre])
+  cuentas    Cuenta[]
+  respuestas RespuestaOficial[]
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
 }
 
 model Cuenta {
@@ -223,3 +224,108 @@ model RankingItem {
   @@unique([rankingId, luchadorId])
   @@unique([rankingId, posicion])
 }
+
+enum EstadoOpinion {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+}
+
+enum CategoriaOpinion {
+  WEB_PLATAFORMA
+  ORGANIZACION
+  LUGAR_INSTALACIONES
+  KIT_PREMIACION
+  GENERAL
+}
+
+enum RolParticipante {
+  ATLETA
+  ESPECTADOR
+  COACH
+  OTRO
+}
+
+enum TipoOpinion {
+  COMENTARIO
+  SUGERENCIA
+}
+
+model Opinion {
+  id              String           @id @default(uuid())
+
+  nombreUsuario   String           @default("Anónimo")
+  rolParticipante RolParticipante  @default(OTRO)
+
+  tipo            TipoOpinion      @default(COMENTARIO)
+  titulo          String
+  descripcion     String
+  categoria       CategoriaOpinion @default(GENERAL)
+
+  estrellas       Int?
+
+  estado          EstadoOpinion    @default(PENDIENTE)
+
+  ipHash          String
+
+  respuesta       RespuestaOficial?
+
+  votos           VotoOpinion[]
+  conteoVotos     Int              @default(0)
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([estado, createdAt])
+  @@index([categoria, estado])
+  @@index([tipo, estado, conteoVotos])
+}
+
+model ValoracionAspecto {
+  id         String           @id @default(uuid())
+  ipHash     String
+  categoria  CategoriaOpinion
+  estrellas  Int              // 1-5
+
+  createdAt  DateTime         @default(now())
+
+  @@index([categoria])
+}
+
+model IndiceImpactoNPS {
+  id               String   @id @default(uuid())
+  nps              Int      // 0-10
+  intencionRetorno Int      // 1-5
+  satisfaccionWeb  Int      // 1-5
+  ipHash           String
+
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model RespuestaOficial {
+  id        String   @id @default(uuid())
+  opinionId String   @unique
+  opinion   Opinion  @relation(fields: [opinionId], references: [id], onDelete: Cascade)
+
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  contenido String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VotoOpinion {
+  id        String   @id @default(uuid())
+  opinionId String
+  opinion   Opinion  @relation(fields: [opinionId], references: [id], onDelete: Cascade)
+  ipHash    String
+
+  createdAt DateTime @default(now())
+
+  @@unique([opinionId, ipHash])
+}
+

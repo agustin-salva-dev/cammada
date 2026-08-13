@@ -13,6 +13,7 @@ export default defineConfig({
       "**/dist/**",
       "**/.next/**",
       "**/tests/e2e/**",
+      "**/e2e/**",
     ],
     coverage: {
       provider: "v8",
