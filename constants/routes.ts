@@ -3,6 +3,7 @@ export const ROUTES = {
   EVENTOS: "/eventos",
   RANKINGS: "/rankings",
   OPINIONES: "/opiniones",
+  OPINAR: "/opinar",
   PREDICCIONES: "/predicciones",
   ADMIN: "/admin",
   ADMIN_REGISTER: "/admin/register",
@@ -15,5 +16,6 @@ export const ROUTES = {
   DASHBOARD_CATEGORIAS_PESO: "/dashboard/categorias-peso",
   DASHBOARD_MODALIDADES: "/dashboard/modalidades",
   DASHBOARD_SETTINGS: "/dashboard/settings",
+  DASHBOARD_OPINIONES: "/dashboard/opiniones",
 } as const;
 

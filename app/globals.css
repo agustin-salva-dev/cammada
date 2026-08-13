@@ -124,6 +124,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  select {
+    color-scheme: light dark;
+  }
+  select option {
+    background-color: var(--popover);
+    color: var(--popover-foreground);
+  }
   html {
     @apply font-sans;
   }
