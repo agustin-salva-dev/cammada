@@ -46,6 +46,10 @@ export const PERMISSIONS = {
     MODERAR: "opiniones:moderar",
     RESPONDER: "opiniones:responder",
   },
+  EXPORTADOS: {
+    VER: "exportados:ver",
+    GESTIONAR: "exportados:gestionar",
+  },
   AJUSTES: {
     GESTIONAR_CUENTAS: "ajustes:gestionar_cuentas",
     CONFIGURAR_ROLES: "ajustes:configurar_roles",
@@ -64,6 +68,7 @@ export const PERMISSION_GROUP_LABELS: Record<string, string> = {
   MODALIDADES: "Modalidades",
   RANKINGS: "Rankings",
   OPINIONES: "Opiniones & Feedback",
+  EXPORTADOS: "Talento Exportado",
   AJUSTES: "Ajustes",
 };
 
@@ -75,6 +80,7 @@ export const PERMISSION_ACTION_LABELS: Record<string, string> = {
   moderar: "Moderar",
   responder: "Responder",
   gestionar_cuentas: "Gestionar Cuentas",
+  gestionar: "Gestionar",
   configurar_roles: "Configurar Roles",
 };
 

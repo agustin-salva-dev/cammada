@@ -1,7 +1,13 @@
 "use client";
 
 import { CammadaLogo } from "./CammadaLogo";
-import { Calendar, Trophy, MessageSquare, TrendingUp } from "lucide-react";
+import {
+  Calendar,
+  Trophy,
+  MessageSquare,
+  TrendingUp,
+  Globe,
+} from "lucide-react";
 import SpecularButton from "../SpecularButton";
 import { ModeToggle } from "../ui/ModeToggle";
 import Link from "next/link";
@@ -26,6 +32,12 @@ export default function Navbar() {
       active: pathname.startsWith(ROUTES.RANKINGS),
     },
     {
+      href: ROUTES.TALENTO_EXPORTADO,
+      label: "Talento Exportado",
+      icon: Globe,
+      active: pathname.startsWith(ROUTES.TALENTO_EXPORTADO),
+    },
+    {
       href: ROUTES.OPINIONES,
       label: "Opiniones",
       icon: MessageSquare,
@@ -40,9 +52,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-8 lg:px-10.5 2xl:px-42 py-4 z-50 backdrop-blur-xl bg-transparent lg:backdrop-blur-none">
+    <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-8 2xl:px-42 py-4 z-50 backdrop-blur-xl bg-transparent lg:backdrop-blur-none">
       <CammadaLogo />
-      <section className="animate-fade-in hidden md:flex bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/40 rounded-xl drop-shadow-lg gap-5 font-normal text-xs 2xl:text-sm px-6 py-2 items-center">
+      <section className="font-heading animate-fade-in hidden md:flex bg-white/5 backdrop-blur-sm border border-border hover:border-primary/40 rounded-xl drop-shadow-lg gap-5 font-normal text-xs 2xl:text-sm px-6 py-1.5 items-center">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -65,7 +77,29 @@ export default function Navbar() {
       <div className="flex items-center gap-2 md:gap-4">
         <SpecularButton
           size="sm"
-          radius={18}
+          radius={13}
+          tint="#c970f5"
+          tintOpacity={0}
+          blur={10}
+          textColor="#a51fe8"
+          lineColor="#a51fe8"
+          baseColor="#805197"
+          intensity={1.5}
+          shineSize={12}
+          shineFade={26}
+          thickness={0.8}
+          speed={0.2}
+          followMouse
+          proximity={250}
+          autoAnimate={false}
+          onClick={() => console.log("clicked")}
+          className="font-semibold text-shadow-md font-heading!"
+        >
+          Compra tus entradas!
+        </SpecularButton>
+        {/*         <SpecularButton
+          size="sm"
+          radius={12}
           tint="#ffffff"
           tintOpacity={0}
           blur={10}
@@ -83,30 +117,8 @@ export default function Navbar() {
           onClick={() => console.log("clicked")}
           className="font-light text-shadow-md hidden md:block"
         >
-          Entradas
-        </SpecularButton>
-        <SpecularButton
-          size="sm"
-          radius={18}
-          tint="#c970f5"
-          tintOpacity={0}
-          blur={10}
-          textColor="#a51fe8"
-          lineColor="#a51fe8"
-          baseColor="#805197"
-          intensity={1.5}
-          shineSize={12}
-          shineFade={26}
-          thickness={0.8}
-          speed={0.2}
-          followMouse
-          proximity={250}
-          autoAnimate={false}
-          onClick={() => console.log("clicked")}
-          className="font-medium text-shadow-md"
-        >
-          Ver en vivo
-        </SpecularButton>
+          Compra tus Entradas!
+        </SpecularButton> */}
         <ModeToggle />
       </div>
     </nav>

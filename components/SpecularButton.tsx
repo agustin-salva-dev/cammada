@@ -52,7 +52,7 @@ interface ShaderProps {
 const PAD = 20;
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: "text-[0.85rem] px-[22px] py-[10px]",
+  sm: "text-[13px] px-[22px] py-[10px]",
   md: "text-[1rem] px-[30px] py-[14px]",
   lg: "text-[1.15rem] px-10 py-[18px]",
 };
