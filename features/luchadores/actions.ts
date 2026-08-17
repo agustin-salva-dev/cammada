@@ -139,7 +139,7 @@ export async function createLuchador(rawInput: unknown) {
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
     const categoria = validatedData.categoria;
-    const { edad, altura, ultimoPeso, records } = validatedData;
+    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
       const dbEquipo = await tx.equipo.upsert({
@@ -164,6 +164,8 @@ export async function createLuchador(rawInput: unknown) {
           ciudad,
           equipoId: dbEquipo.id,
           categoriaId: categoria,
+          esExportado: esExportado ?? false,
+          linkTapology: linkTapology ?? null,
         },
       });
 
@@ -192,6 +194,7 @@ export async function createLuchador(rawInput: unknown) {
     });
 
     revalidateTag("luchadores", "max");
+    revalidateTag("exportados", "max");
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
@@ -223,7 +226,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
     const categoria = validatedData.categoria;
-    const { edad, altura, ultimoPeso, records } = validatedData;
+    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } = validatedData;
 
     const result = await db.$transaction(async (tx) => {
       const dbEquipo = await tx.equipo.upsert({
@@ -249,6 +252,8 @@ export async function updateLuchador(id: string, rawInput: unknown) {
           ciudad,
           equipoId: dbEquipo.id,
           categoriaId: categoria,
+          esExportado: esExportado ?? false,
+          linkTapology: linkTapology ?? null,
         },
       });
 
@@ -281,6 +286,7 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     });
 
     revalidateTag("luchadores", "max");
+    revalidateTag("exportados", "max");
     revalidatePath("/dashboard/luchadores");
     return { success: true, data: result };
   } catch (error) {
@@ -334,6 +340,9 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
     }
 
     let slug = slugOrUrl.split("?")[0].replace(/\/+$/, "");
+    const originalUrl = slug.includes("tapology.com")
+      ? slug.startsWith("http") ? slug : `https://${slug}`
+      : null;
     if (slug.includes("/fighters/")) {
       const parts = slug.split("/fighters/");
       slug = parts[parts.length - 1];
@@ -354,28 +363,100 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
     const apiHost =
       process.env.RAPIDAPI_HOST || "unofficial-tapology-api.p.rapidapi.com";
 
-    const url = `https://${apiHost}/api/v2/fighters/${slug}?fields=firstname%2Clastname%2Cnickname%2Cage%2Cdate_of_birth%2Cweight_class%2Cfull_record%2Cwins%2Closses%2Cdraws%2Cno_contest%2Ctko_ko%2Csubmission%2Cdecision%2Clast_weigh_in`;
+    // Candidate IDs to query: numeric ID first (e.g. "107777" from "107777-humberto-storti"), then full slug
+    const candidateIds: string[] = [];
+    const numericMatch = slug.match(/^(\d+)/);
+    if (numericMatch) {
+      candidateIds.push(numericMatch[1]);
+    }
+    if (!candidateIds.includes(slug)) {
+      candidateIds.push(slug);
+    }
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "x-rapidapi-key": apiKey,
-        "x-rapidapi-host": apiHost,
-        "Content-Type": "application/json",
-      },
-    });
+    let response: Response | null = null;
+    let redirectDetected = false;
+    let serverErrorMsg: string | null = null;
 
-    if (!response.ok) {
-      if (response.status === 404) {
+    for (const candidateId of candidateIds) {
+      const url = `https://${apiHost}/api/v2/fighters/${candidateId}?fields=firstname%2Clastname%2Cnickname%2Cage%2Cdate_of_birth%2Cweight_class%2Cfull_record%2Cwins%2Closses%2Cdraws%2Cno_contest%2Ctko_ko%2Csubmission%2Cdecision%2Clast_weigh_in`;
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "x-rapidapi-key": apiKey,
+            "x-rapidapi-host": apiHost,
+            "Content-Type": "application/json",
+          },
+          redirect: "manual",
+          signal: AbortSignal.timeout(7000),
+        });
+
+        if (res.ok) {
+          response = res;
+          break;
+        } else if (res.status === 301 || res.status === 302 || res.type === "opaqueredirect") {
+          redirectDetected = true;
+          response = res;
+          break;
+        } else if (res.status === 504) {
+          serverErrorMsg =
+            "El servidor de Tapology (RapidAPI) no responde en este momento (Error 504 - Tiempo de espera agotado). Intentá más tarde o ingresá los datos manualmente.";
+          response = res;
+          break;
+        } else if (res.status === 502 || res.status === 503) {
+          serverErrorMsg = `El servicio de Tapology (RapidAPI) no está disponible temporalmente (Error ${res.status}). Intentá más tarde.`;
+          response = res;
+          break;
+        } else if (res.status === 429) {
+          serverErrorMsg =
+            "Se superó el límite de solicitudes a la API de Tapology (Error 429). Intentá más tarde.";
+          response = res;
+          break;
+        } else if (res.status !== 404) {
+          response = res;
+          break;
+        }
+        response = res;
+      } catch (fetchErr: unknown) {
+        console.error(`Error al conectar con la API de Tapology (RapidAPI candidate ${candidateId}):`, fetchErr);
+        const isTimeout =
+          fetchErr instanceof Error &&
+          (fetchErr.name === "TimeoutError" || fetchErr.name === "AbortError");
+        if (isTimeout) {
+          serverErrorMsg =
+            "La conexión con la API de Tapology expiró (Tiempo de espera agotado). El proveedor externo no responde.";
+          break;
+        }
+      }
+    }
+
+    if (!response || !response.ok) {
+      if (serverErrorMsg) {
+        return {
+          success: false,
+          error: serverErrorMsg,
+        };
+      }
+      if (redirectDetected || response?.status === 301 || response?.status === 302) {
         return {
           success: false,
           error:
-            "Luchador no encontrado en Tapology. Verifique el ID o la URL.",
+            "El servidor del proveedor de Tapology (RapidAPI) está experimentando problemas de redirección temporal. Intentá más tarde.",
+        };
+      }
+      if (response?.status === 404) {
+        return {
+          success: false,
+          error:
+            "Luchador no encontrado en Tapology. Verificá el ID o la URL.",
         };
       }
       return {
         success: false,
-        error: `Error de la API de Tapology (${response.status})`,
+        error: response?.status
+          ? `Error de la API de Tapology (${response.status})`
+          : "No se pudo establecer conexión con la API de Tapology.",
       };
     }
 
@@ -455,6 +536,7 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       ciudad: "Salta",
       equipo: "",
       records: [initialRecord],
+      linkTapology: originalUrl || `https://www.tapology.com/fightcenter/fighters/${slug}`,
     };
 
     return { success: true, data: mappedFighter };

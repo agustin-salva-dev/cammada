@@ -18,4 +18,6 @@ export interface LuchadorFormData {
   ciudad: string;
   equipo: string;
   records: RecordModalidad[];
+  esExportado?: boolean;
+  linkTapology?: string;
 }

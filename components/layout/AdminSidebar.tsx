@@ -29,6 +29,7 @@ import {
   Settings,
   LogOut,
   MessageSquare,
+  Globe,
 } from "lucide-react";
 
 const mainNavItems = [
@@ -44,6 +45,11 @@ const competitionItems = [
     title: "Luchadores",
     url: "/dashboard/luchadores",
     icon: Users,
+  },
+  {
+    title: "Talento Exportado",
+    url: "/dashboard/exportados",
+    icon: Globe,
   },
   {
     title: "Equipos",

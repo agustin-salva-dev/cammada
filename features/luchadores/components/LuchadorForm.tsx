@@ -32,6 +32,8 @@ export const INITIAL_FORM: LuchadorFormData = {
   ciudad: "Salta - Capital",
   equipo: "",
   records: [],
+  esExportado: false,
+  linkTapology: "",
 };
 
 function crearRecordVacio(): RecordModalidad {
@@ -525,6 +527,57 @@ export function LuchadorForm({
             ))}
           </div>
         )}
+      </section>
+
+      <section className="flex flex-col gap-4 border-t border-border pt-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Talento Exportado y Enlaces
+        </h3>
+
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+          <input
+            id={`${formId}-esExportado`}
+            type="checkbox"
+            disabled={isPending}
+            checked={form.esExportado ?? false}
+            onChange={(e) => setField("esExportado", e.target.checked)}
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-primary"
+          />
+          <Label
+            htmlFor={`${formId}-esExportado`}
+            className="cursor-pointer font-medium text-sm flex flex-col"
+          >
+            <span>¿Es Peleador de Exportación?</span>
+            <span className="text-xs text-muted-foreground font-normal">
+              Marca esta opción para promocionar a este luchador en la sección pública &quot;Talento Exportado&quot;.
+            </span>
+          </Label>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${formId}-linkTapology`}>
+            Enlace de Tapology{" "}
+            <span className="text-muted-foreground text-xs font-normal">
+              (opcional - URL oficial del perfil del peleador)
+            </span>
+          </Label>
+          <Input
+            id={`${formId}-linkTapology`}
+            type="url"
+            placeholder="Ej: https://www.tapology.com/fightcenter/fighters/nombre-slug"
+            disabled={isPending}
+            value={form.linkTapology ?? ""}
+            onChange={(e) => setField("linkTapology", e.target.value)}
+          />
+          {form.linkTapology &&
+            !/^https?:\/\/(www\.)?tapology\.com\/fightcenter\/fighters\/.+/i.test(
+              form.linkTapology.trim(),
+            ) && (
+              <p className="text-xs text-destructive">
+                Debe ingresar un enlace válido a un perfil de peleador en Tapology (ej: https://www.tapology.com/fightcenter/fighters/...).
+              </p>
+            )}
+        </div>
       </section>
     </form>
   );
