@@ -98,8 +98,14 @@ model Luchador {
   rankingItems        RankingItem[]
   rankingsComoChampion Ranking[]      @relation("CampeonRanking")
 
+  esExportado       Boolean          @default(false)
+  linkTapology      String?
+  ordenExportado    Int              @default(0)
+
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+
+  @@index([esExportado])
 }
 
 model RecordLuchador {

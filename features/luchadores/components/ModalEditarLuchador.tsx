@@ -56,6 +56,8 @@ function mapLuchadorRowToForm(luchador: LuchadorRow): LuchadorFormData {
       derrotas: r.derrotas,
       empates: r.empates,
     })),
+    esExportado: luchador.esExportado ?? false,
+    linkTapology: luchador.linkTapology || "",
   };
 }
 

@@ -34,6 +34,8 @@ export type LuchadorRow = {
     empates: number;
     modalidad: { id: string; nombre: string } | null;
   }[];
+  esExportado?: boolean;
+  linkTapology?: string | null;
 };
 
 export function getColumns(
