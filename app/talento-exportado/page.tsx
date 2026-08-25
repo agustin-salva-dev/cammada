@@ -2,10 +2,8 @@ import Navbar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
 import { Globe } from "lucide-react";
 import { getExportadosPublicos } from "@/features/luchadores/actions/exportados";
-import { TalentoExportadoGrid } from "@/features/luchadores/components/exportados/TalentoExportadoGrid";
+import { TalentoExportadoGrid } from "@/features/luchadores/components/exportados/public/TalentoExportadoGrid";
 import type { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Talento Exportado — Cammada",

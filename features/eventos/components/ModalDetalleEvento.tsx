@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -165,6 +166,9 @@ export function ModalDetalleEvento({
               {ESTADO_LABELS[evento.estado]}
             </Badge>
           </div>
+          <DialogDescription className="text-xs text-muted-foreground">
+            Detalles e información completa sobre el evento #{evento.numero}.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="px-6 py-5 flex flex-col gap-6 max-h-[70vh] overflow-y-auto">

@@ -2,195 +2,175 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import {
+  ALL_PERMISSIONS,
+  DEFAULT_ROLE_PERMISSIONS,
+} from "@/constants/permissions";
 
 const MAX_RESULTS_PER_CATEGORY = 5;
+const CACHE_TTL_MS = 60 * 1000;
 
 export type SearchResult = {
   id: string;
   label: string;
   description?: string;
-  category: "luchadores" | "equipos" | "combates" | "eventos";
+  category: "luchadores" | "equipos";
   url: string;
   rawData: unknown;
 };
 
+interface CacheEntry {
+  timestamp: number;
+  data: SearchResult[];
+}
+
+const serverSearchCache = new Map<string, CacheEntry>();
+
+function getFromCache(key: string): SearchResult[] | null {
+  const entry = serverSearchCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    serverSearchCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setInCache(key: string, data: SearchResult[]): void {
+  if (serverSearchCache.size > 200) {
+    serverSearchCache.clear();
+  }
+  serverSearchCache.set(key, { timestamp: Date.now(), data });
+}
+
 export async function searchEntities(
   query: string,
 ): Promise<{ success: boolean; data?: SearchResult[]; error?: string }> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "No autenticado" };
-  }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: "No autenticado" };
+    }
 
-  const trimmed = query.trim();
-  if (!trimmed || trimmed.length < 2) {
+    const trimmed = query.trim();
+    if (!trimmed || trimmed.length < 2) {
+      return { success: true, data: [] };
+    }
+
+    const userRole = session.user.role ?? "AYUDANTE";
+    const cacheKey = `${userRole}:${trimmed.toLowerCase()}`;
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+      return { success: true, data: cached };
+    }
+
+    let permisos: readonly string[] = [];
+    if (userRole === "SUPERADMIN") {
+      permisos = ALL_PERMISSIONS;
+    } else if (userRole === "ADMIN") {
+      permisos = DEFAULT_ROLE_PERMISSIONS.ADMIN;
+    } else {
+      const rolConfig = await db.rolConfig.findUnique({
+        where: { nombre: userRole },
+        select: { permisos: true },
+      });
+      permisos = rolConfig?.permisos ?? DEFAULT_ROLE_PERMISSIONS.AYUDANTE;
+    }
+
+    const results: SearchResult[] = [];
+
+    const [luchadoresRes, equiposRes] = await Promise.all([
+      permisos.includes("luchadores:ver")
+        ? db.luchador
+            .findMany({
+              where: {
+                OR: [
+                  { nombre: { contains: trimmed, mode: "insensitive" } },
+                  { apellido: { contains: trimmed, mode: "insensitive" } },
+                  { apodo: { contains: trimmed, mode: "insensitive" } },
+                ],
+              },
+              select: {
+                id: true,
+                nombre: true,
+                apellido: true,
+                apodo: true,
+                edad: true,
+                altura: true,
+                ultimoPeso: true,
+                pais: true,
+                ciudad: true,
+                createdAt: true,
+                esExportado: true,
+                linkTapology: true,
+                categoria: { select: { id: true, nombre: true } },
+                equipo: { select: { id: true, nombre: true } },
+                records: {
+                  select: {
+                    id: true,
+                    victorias: true,
+                    derrotas: true,
+                    empates: true,
+                    modalidad: { select: { id: true, nombre: true } },
+                  },
+                },
+              },
+              take: MAX_RESULTS_PER_CATEGORY,
+            })
+            .catch((err) => {
+              console.error("Error al buscar luchadores:", err);
+              return [];
+            })
+        : Promise.resolve([]),
+
+      permisos.includes("equipos:ver")
+        ? db.equipo
+            .findMany({
+              where: {
+                nombre: { contains: trimmed, mode: "insensitive" },
+              },
+              select: { id: true, nombre: true, pais: true, ciudad: true },
+              take: MAX_RESULTS_PER_CATEGORY,
+            })
+            .catch((err) => {
+              console.error("Error al buscar equipos:", err);
+              return [];
+            })
+        : Promise.resolve([]),
+    ]);
+
+    for (const l of luchadoresRes) {
+      const apodoStr = l.apodo ? ` "${l.apodo}"` : "";
+      results.push({
+        id: l.id,
+        label: `${l.nombre}${apodoStr} ${l.apellido}`,
+        description: [l.categoria?.nombre, l.equipo?.nombre]
+          .filter(Boolean)
+          .join(" • "),
+        category: "luchadores",
+        url: `/dashboard/luchadores`,
+        rawData: l,
+      });
+    }
+
+    for (const e of equiposRes) {
+      results.push({
+        id: e.id,
+        label: e.nombre,
+        description: [e.ciudad, e.pais].filter(Boolean).join(", "),
+        category: "equipos",
+        url: `/dashboard/equipos`,
+        rawData: e,
+      });
+    }
+
+    setInCache(cacheKey, results);
+
+    return { success: true, data: results };
+  } catch (globalError) {
+    console.error("Error global en searchEntities:", globalError);
     return { success: true, data: [] };
   }
-
-  const userRole = session.user.role ?? "AYUDANTE";
-
-  const rolConfig = await db.rolConfig.findUnique({
-    where: { nombre: userRole },
-    select: { permisos: true },
-  });
-
-  const permisos = rolConfig?.permisos ?? [];
-  const results: SearchResult[] = [];
-
-  const searches: Promise<void>[] = [];
-
-  if (permisos.includes("luchadores:ver")) {
-    searches.push(
-      db.luchador
-        .findMany({
-          where: {
-            OR: [
-              { nombre: { contains: trimmed, mode: "insensitive" } },
-              { apellido: { contains: trimmed, mode: "insensitive" } },
-              { apodo: { contains: trimmed, mode: "insensitive" } },
-            ],
-          },
-          include: {
-            categoria: { select: { id: true, nombre: true } },
-            equipo: { select: { id: true, nombre: true } },
-            records: {
-              include: {
-                modalidad: { select: { id: true, nombre: true } },
-              },
-            },
-          },
-          take: MAX_RESULTS_PER_CATEGORY,
-        })
-        .then((luchadores) => {
-          for (const l of luchadores) {
-            results.push({
-              id: l.id,
-              label: `${l.nombre} "${l.apodo}" ${l.apellido}`,
-              category: "luchadores",
-              url: `/dashboard/luchadores`,
-              rawData: JSON.parse(JSON.stringify(l)),
-            });
-          }
-        }),
-    );
-  }
-
-  if (permisos.includes("equipos:ver")) {
-    searches.push(
-      db.equipo
-        .findMany({
-          where: {
-            nombre: { contains: trimmed, mode: "insensitive" },
-          },
-          select: { id: true, nombre: true, pais: true, ciudad: true },
-          take: MAX_RESULTS_PER_CATEGORY,
-        })
-        .then((equipos) => {
-          for (const e of equipos) {
-            results.push({
-              id: e.id,
-              label: e.nombre,
-              description: e.pais,
-              category: "equipos",
-              url: `/dashboard/equipos`,
-              rawData: e,
-            });
-          }
-        }),
-    );
-  }
-
-  if (permisos.includes("combates:ver")) {
-    searches.push(
-      db.combate
-        .findMany({
-          where: {
-            OR: [
-              {
-                peleador1: {
-                  OR: [
-                    { nombre: { contains: trimmed, mode: "insensitive" } },
-                    { apellido: { contains: trimmed, mode: "insensitive" } },
-                    { apodo: { contains: trimmed, mode: "insensitive" } },
-                  ],
-                },
-              },
-              {
-                peleador2: {
-                  OR: [
-                    { nombre: { contains: trimmed, mode: "insensitive" } },
-                    { apellido: { contains: trimmed, mode: "insensitive" } },
-                    { apodo: { contains: trimmed, mode: "insensitive" } },
-                  ],
-                },
-              },
-            ],
-          },
-          include: {
-            peleador1: {
-              select: { nombre: true, apellido: true },
-            },
-            peleador2: {
-              select: { nombre: true, apellido: true },
-            },
-            evento: {
-              select: { numero: true },
-            },
-          },
-          take: MAX_RESULTS_PER_CATEGORY,
-        })
-        .then((combates) => {
-          for (const c of combates) {
-            results.push({
-              id: c.id,
-              label: `${c.peleador1.nombre} ${c.peleador1.apellido} vs ${c.peleador2.nombre} ${c.peleador2.apellido}`,
-              description: `Evento #${c.evento.numero}`,
-              category: "combates",
-              url: `/dashboard/combates`,
-              rawData: JSON.parse(JSON.stringify(c)),
-            });
-          }
-        }),
-    );
-  }
-
-  if (permisos.includes("eventos:ver")) {
-    searches.push(
-      db.evento
-        .findMany({
-          where: {
-            OR: [
-              { lugarNombre: { contains: trimmed, mode: "insensitive" } },
-              ...(isFinite(Number(trimmed))
-                ? [{ numero: Number(trimmed) }]
-                : []),
-            ],
-          },
-          take: MAX_RESULTS_PER_CATEGORY,
-          orderBy: { numero: "desc" },
-        })
-        .then((eventos) => {
-          for (const ev of eventos) {
-            const formattedDate = ev.fecha.toISOString().split("T")[0];
-            results.push({
-              id: ev.id,
-              label: `Evento #${ev.numero}`,
-              description: ev.lugarNombre,
-              category: "eventos",
-              url: `/dashboard/eventos`,
-              rawData: {
-                ...ev,
-                fecha: formattedDate,
-              },
-            });
-          }
-        }),
-    );
-  }
-
-  await Promise.all(searches);
-
-  return { success: true, data: results };
 }
 
 export async function getModalSelectOptions() {

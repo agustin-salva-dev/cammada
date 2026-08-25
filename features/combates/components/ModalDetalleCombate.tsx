@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -139,9 +140,9 @@ export function ModalDetalleCombate({
             <span className="text-muted-foreground font-normal">vs</span>{" "}
             {nombreCompleto(combate.peleador2)}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             Evento #{combate.evento.numero} · Pelea #{combate.numeroPelea}
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-0 px-6 py-4 overflow-y-auto max-h-[60vh]">

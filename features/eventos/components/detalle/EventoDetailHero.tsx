@@ -74,7 +74,7 @@ export function EventoDetailHero({ evento }: EventoDetailHeroProps) {
           ].map(({ icon: Icon, label, value }) => (
             <div
               key={label}
-              className="flex items-start gap-3 rounded-xl border border-border/60 drop-shadow-lg bg-white/2 backdrop-blur-xs p-3 sm:p-4 min-w-0"
+              className="flex items-start gap-3 rounded-xl border border-border/60 bg-white/2 drop-shadow-lg backdrop-blur-lg p-3 sm:p-4 min-w-0"
             >
               <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
                 <Icon size={16} />

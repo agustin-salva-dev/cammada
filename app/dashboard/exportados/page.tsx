@@ -1,5 +1,5 @@
 import { getExportadosDashboard } from "@/features/luchadores/actions/exportados";
-import { ExportadosDashboardManager } from "@/features/luchadores/components/exportados/ExportadosDashboardManager";
+import { ExportadosDashboardManager } from "@/features/luchadores/components/exportados/dashboard/ExportadosDashboardManager";
 import { hasPermission } from "@/lib/action-guard";
 import { PERMISSIONS } from "@/constants/permissions";
 import type { Metadata } from "next";
@@ -25,7 +25,8 @@ export default async function ExportadosDashboardPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Talento Exportado</h1>
         <p className="text-sm text-muted-foreground">
-          Gestioná y defini el orden de aparición de los peleadores impulsados desde Cammada hacia ligas de mayor envergadura.
+          Gestioná y defini el orden de aparición de los peleadores impulsados
+          desde Cammada hacia ligas de mayor envergadura.
         </p>
       </div>
 
