@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { CommandMenu } from "@/components/layout/CommandMenu";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { UserPlus } from "lucide-react";
@@ -8,6 +9,7 @@ import { ROUTES } from "@/constants/routes";
 import { auth } from "@/lib/auth";
 import { getRolConfig } from "@/lib/action-guard";
 
+import { ALL_PERMISSIONS, DEFAULT_ROLE_PERMISSIONS } from "@/constants/permissions";
 import { IconButtonConfig } from "@/constants/ui";
 
 export async function DashboardHeader() {
@@ -16,17 +18,18 @@ export async function DashboardHeader() {
 
   const userRole = user?.role ?? "AYUDANTE";
   let userPermissions: string[] = [];
-  
+
   if (userRole === "SUPERADMIN") {
-    userPermissions = [];
+    userPermissions = [...ALL_PERMISSIONS];
   } else if (userRole === "ADMIN") {
-    userPermissions = [];
+    userPermissions = [...DEFAULT_ROLE_PERMISSIONS.ADMIN];
   } else {
     try {
       const rolConfig = await getRolConfig(userRole);
-      userPermissions = rolConfig?.permisos ?? [];
+      userPermissions = rolConfig?.permisos ?? [...DEFAULT_ROLE_PERMISSIONS.AYUDANTE];
     } catch (e) {
       console.error("Error al obtener rolConfig en Header:", e);
+      userPermissions = [...DEFAULT_ROLE_PERMISSIONS.AYUDANTE];
     }
   }
 
@@ -34,9 +37,12 @@ export async function DashboardHeader() {
     userRole === "SUPERADMIN" || userRole === "ADMIN";
 
   return (
-    <header className="flex justify-between items-center mb-5">
-      <CommandMenu userPermissions={userPermissions} />
-      <div className="flex items-center gap-3">
+    <header className="flex justify-between items-center mb-5 gap-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <SidebarTrigger className="shrink-0" />
+        <CommandMenu userPermissions={userPermissions} />
+      </div>
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <UserAvatar src={user?.image} name={user?.name} />
         {canManageAccounts && (
           <Button variant="outline" asChild>

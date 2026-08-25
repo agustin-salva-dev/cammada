@@ -2,6 +2,8 @@ export const ROUTES = {
   HOME: "/",
   EVENTOS: "/eventos",
   RANKINGS: "/rankings",
+  LUCHADORES: "/luchadores",
+  EQUIPOS: "/equipos",
   OPINIONES: "/opiniones",
   OPINAR: "/opinar",
   PREDICCIONES: "/predicciones",

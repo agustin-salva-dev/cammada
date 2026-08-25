@@ -50,9 +50,9 @@ export default function EventCard({
         #{numero}
       </p>
 
-      <div className="flex flex-col items-center gap-2">
-        <Swords className="drop-shadow-xl group-hover:text-primary transition-all duration-600 sm:size-10 2xl:size-16" />
-        <h3 className="drop-shadow-xl text-xs sm:text-sm 2xl:text-2xl uppercase font-light tracking-normal">
+      <div className="flex flex-col items-center">
+        <Swords className="drop-shadow-xl group-hover:text-primary transition-all duration-600 size-4 md:size-7 2xl:size-11" />
+        <h3 className="drop-shadow-xl text-[10px] sm:text-xs 2xl:text-lg uppercase font-light tracking-normal">
           {estadoLabel}
         </h3>
 
@@ -87,7 +87,7 @@ export default function EventCard({
               yoyo={false}
               pauseOnHover={false}
               disabled={false}
-              className="text-center mt-2 drop-shadow-lg font-heading font-semibold text-primary text-xl sm:text-3xl xl:text-5xl 2xl:text-7xl tracking-normal"
+              className="text-center mt-2 drop-shadow-lg font-heading font-semibold text-primary text-2xl sm:text-3xl xl:text-[34px] 2xl:text-4xl tracking-normal"
             />
           )
         ) : (
@@ -102,14 +102,14 @@ export default function EventCard({
             yoyo={false}
             pauseOnHover={false}
             disabled={false}
-            className="text-center mt-2 drop-shadow-lg font-heading font-semibold text-primary text-xl sm:text-4xl xl:text-[42px] 2xl:text-7xl tracking-normal"
+            className="text-center mt-2 drop-shadow-lg font-heading font-semibold text-primary text-2xl sm:text-3xl xl:text-[34px] 2xl:text-4xl tracking-normal"
           />
         )}
       </div>
 
       {peleaEstelar ? (
         <>
-          <p className="drop-shadow-xl text-muted-foreground text-xs xl:text-sm 2xl:text-xl text-center">
+          <p className="drop-shadow-xl text-muted-foreground text-[10px] xl:text-xs 2xl:text-xl text-center">
             Cartelera Estelar
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4 xl:gap-6 2xl:gap-10 items-center justify-between">
@@ -150,12 +150,12 @@ export default function EventCard({
 
           <div className="flex flex-wrap gap-1.5 sm:gap-2 xl:gap-4 2xl:gap-6 items-center justify-center">
             {peleaEstelar.titulo && (
-              <div className="flex items-center gap-1 drop-shadow-xl bg-primary text-center w-fit py-0.5 sm:py-0.75 2xl:py-1.5 px-2.5 2xl:px-3.5 rounded-lg font-medium text-xs sm:text-sm 2xl:text-xl">
-                <Medal strokeWidth={1} className="size-5 2xl:size-7" />
+              <div className="flex items-center gap-1 drop-shadow-xl bg-primary text-center w-fit py-0.5 sm:py-0.75 2xl:py-1.5 px-2.5 2xl:px-3.5 rounded-lg font-medium text-[10px] sm:text-xs 2xl:text-sm">
+                <Medal strokeWidth={1} className="size-4 2xl:size-5" />
                 <p>Título — {peleaEstelar.categoriaPeso.nombre}</p>
               </div>
             )}
-            <p className="drop-shadow-xl bg-transparent/50 backdrop-blur-sm border border-border text-center w-fit py-0.5 sm:py-0.75 2xl:py-1.5 px-2.5 2xl:px-3.5 rounded-lg font-medium text-xs sm:text-sm 2xl:text-xl">
+            <p className="drop-shadow-xl bg-transparent/50 backdrop-blur-sm border border-border/20 text-center w-fit py-0.5 sm:py-0.75 2xl:py-1.5 px-2.5 2xl:px-3.5 rounded-lg font-medium text-[10px] sm:text-xs 2xl:text-sm">
               {peleaEstelar.modalidad.nombre}
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function EventCard({
       {Object.keys(modalidadCounts).length > 0 && (
         <div className="flex justify-around items-center flex-wrap gap-2 sm:gap-y-3">
           <div className="flex flex-col gap-0.5 text-center items-center">
-            <p className="text-foreground bg-primary w-fit px-1.75 2xl:px-2.25 py-0.5 2xl:py-1 2xl:text-2xl rounded-md font-heading font-semibold text-xs sm:text-sm">
+            <p className="text-white bg-primary w-fit px-1.75 2xl:px-2.25 py-0.5 2xl:py-1 2xl:text-2xl rounded-md font-heading font-semibold text-xs sm:text-sm">
               {combates.length}
             </p>
             <p className="text-[9px] sm:text-[10px] 2xl:text-lg font-light uppercase text-foreground/70 group-hover:text-foreground group-hover:font-medium transition-all duration-600">
@@ -181,7 +181,7 @@ export default function EventCard({
               key={nombre}
               className="flex flex-col gap-0.5 text-center items-center"
             >
-              <p className="text-foreground bg-primary w-fit  px-1.75 2xl:px-2.5 py-0.5 2xl:py-1 2xl:text-2xl rounded-md font-heading font-semibold text-xs sm:text-sm">
+              <p className="text-white bg-primary w-fit  px-1.75 2xl:px-2.5 py-0.5 2xl:py-1 2xl:text-2xl rounded-md font-heading font-semibold text-xs sm:text-sm">
                 {count}
               </p>
               <p className="text-[9px] sm:text-[10px] 2xl:text-sm font-light uppercase text-foreground/70 group-hover:text-foreground group-hover:font-medium transition-all duration-600">
@@ -209,7 +209,7 @@ export default function EventCard({
 
       <Link
         href={`/eventos/${numero}`}
-        className="flex items-center justify-center gap-2 w-full py-2 2xl:py-3 px-4 2xl:px-5 rounded-xl bg-primary/10 border border-primary/30 text-primary font-medium text-xs sm:text-sm 2xl:text-2xl hover:bg-primary hover:text-primary-foreground transition-all duration-300 group/btn mt-1"
+        className="flex items-center justify-center gap-2 w-full py-1.5 2xl:py-2 px-3 2xl:px-4 rounded-xl bg-primary/10 border border-primary/30 text-primary font-medium text-xs sm:text-sm 2xl:text-2xl hover:bg-primary hover:text-primary-foreground transition-all duration-300 group/btn mt-1"
       >
         <span>Ver cartelera</span>
         <ArrowRight

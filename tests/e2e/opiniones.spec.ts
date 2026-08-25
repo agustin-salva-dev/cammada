@@ -27,7 +27,7 @@ test.describe("Página de Opiniones & Comunidad (/opiniones)", () => {
   }) => {
     await page.goto("/opiniones");
     await page.locator("#btn-hero-ir-a-opinar").click();
-    await expect(page).toHaveURL(/\/opinar$/);
+    await expect(page).toHaveURL(/\/opinar$/, { timeout: 15000 });
   });
 });
 

@@ -145,7 +145,7 @@ export function CardCombate({
             <Swords />
           </div>
           <div className="min-w-0 flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider transition-colors group-hover:text-white">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider transition-colors group-hover:text-foreground">
               <Calendar size={13} />
               <span>Evento #{combate.evento.numero}</span>
               <span className="font-bold">·</span>

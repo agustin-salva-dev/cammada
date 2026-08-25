@@ -21,7 +21,7 @@ export default async function Home() {
                   <h3 className="font-extralight">FIGHT</h3>
                   <h3 className="font-medium">SESSION</h3>
                 </div>
-                <h2 className="bg-primary py-1.25 pl-1.5 pr-2 rounded-xl leading-5 text-foreground text-[22px] sm:text-[25px] font-medium font-heading italic">
+                <h2 className="bg-primary py-1.25 pl-1.5 pr-2 rounded-xl leading-5 text-white text-[22px] sm:text-[25px] font-medium font-heading italic">
                   #{eventoDestacado.numero}
                 </h2>
               </div>

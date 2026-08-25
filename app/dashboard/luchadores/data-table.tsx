@@ -1,5 +1,4 @@
 "use client";
-"use no memo";
 
 import * as React from "react";
 import {
@@ -54,6 +53,7 @@ const columnLabels: Record<string, string> = {
   ubicacion: "Ubicación",
   equipo: "Equipo",
   categoria: "Categoría",
+  esExportado: "Talento Exportado",
   records: "Récords",
 };
 
@@ -70,6 +70,8 @@ export function DataTable<TData, TValue>({
   categorias,
   equipos,
 }: DataTableProps<TData, TValue>) {
+  "use no memo";
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -79,6 +81,7 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [categoriaFilter, setCategoriaFilter] = React.useState("");
   const [equipoFilter, setEquipoFilter] = React.useState("");
+  const [exportadoFilter, setExportadoFilter] = React.useState("");
 
   const filteredData = React.useMemo(() => {
     let result = data as Record<string, unknown>[];
@@ -97,8 +100,14 @@ export function DataTable<TData, TValue>({
       });
     }
 
+    if (exportadoFilter === "exportados") {
+      result = result.filter((row) => row.esExportado === true);
+    } else if (exportadoFilter === "locales") {
+      result = result.filter((row) => !row.esExportado);
+    }
+
     return result as TData[];
-  }, [data, categoriaFilter, equipoFilter]);
+  }, [data, categoriaFilter, equipoFilter, exportadoFilter]);
 
   const table = useReactTable({
     data: filteredData,
@@ -125,7 +134,7 @@ export function DataTable<TData, TValue>({
       {/* Toolbar: Search + Filters + Column Visibility */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Search input */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-50 max-w-sm">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="search-luchadores"
@@ -164,6 +173,21 @@ export function DataTable<TData, TValue>({
           ))}
         </NativeSelect>
 
+        <NativeSelect
+          value={exportadoFilter}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setExportadoFilter(e.target.value)
+          }
+        >
+          <NativeSelectOption value="">
+            Todos (Exportados y Locales)
+          </NativeSelectOption>
+          <NativeSelectOption value="exportados">
+            Solo Exportados
+          </NativeSelectOption>
+          <NativeSelectOption value="locales">Solo Locales</NativeSelectOption>
+        </NativeSelect>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="ml-auto h-9">
@@ -171,7 +195,7 @@ export function DataTable<TData, TValue>({
               Columnas
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[180px]">
+          <DropdownMenuContent align="end" className="w-45">
             <DropdownMenuLabel>Mostrar columnas</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {table

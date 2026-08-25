@@ -2,229 +2,93 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { CammadaLogo } from "@/components/layout/CammadaLogo";
-import { ModalConfirmacion } from "@/components/ui/ModalConfirmacion";
 import {
-  LayoutDashboard,
-  Users,
-  Shield,
-  Swords,
-  CalendarDays,
-  Trophy,
-  Weight,
-  Medal,
-  Settings,
-  LogOut,
-  MessageSquare,
-  Globe,
-} from "lucide-react";
+  SIDEBAR_SECTIONS,
+  SidebarNavSection,
+  SidebarUserCard,
+  SidebarThemeToggle,
+  SidebarLogoutButton,
+  type AdminUser,
+} from "./admin-sidebar";
+import { ROUTES } from "@/constants/routes";
 
-const mainNavItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-];
+interface AdminSidebarProps {
+  user?: AdminUser | null;
+}
 
-const competitionItems = [
-  {
-    title: "Luchadores",
-    url: "/dashboard/luchadores",
-    icon: Users,
-  },
-  {
-    title: "Talento Exportado",
-    url: "/dashboard/exportados",
-    icon: Globe,
-  },
-  {
-    title: "Equipos",
-    url: "/dashboard/equipos",
-    icon: Shield,
-  },
-  {
-    title: "Combates",
-    url: "/dashboard/combates",
-    icon: Swords,
-  },
-  {
-    title: "Eventos",
-    url: "/dashboard/eventos",
-    icon: CalendarDays,
-  },
-];
-
-const configItems = [
-  {
-    title: "Rankings",
-    url: "/dashboard/rankings",
-    icon: Trophy,
-  },
-  {
-    title: "Categorías de Peso",
-    url: "/dashboard/categorias-peso",
-    icon: Weight,
-  },
-  {
-    title: "Modalidades de Combate",
-    url: "/dashboard/modalidades",
-    icon: Medal,
-  },
-];
-
-const comunidadItems = [
-  {
-    title: "Opiniones",
-    url: "/dashboard/opiniones",
-    icon: MessageSquare,
-  },
-];
-
-export default function AdminSidebar() {
+export default function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <Sidebar>
-      <SidebarHeader className="px-4 py-4">
-        <CammadaLogo />
+    <Sidebar
+      collapsible="icon"
+      className="font-heading border-r border-sidebar-border"
+    >
+      <SidebarHeader className="px-3 py-3 flex flex-row items-center justify-between group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:justify-center">
+        <div className="group-data-[collapsible=icon]:hidden">
+          <CammadaLogo />
+        </div>
       </SidebarHeader>
 
       <SidebarSeparator />
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Competición</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {competitionItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Configuración</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {configItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Comunidad</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {comunidadItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="gap-0 py-2">
+        <SidebarNavSection
+          section={SIDEBAR_SECTIONS.main}
+          pathname={pathname}
+        />
+        <SidebarNavSection
+          section={SIDEBAR_SECTIONS.competition}
+          pathname={pathname}
+        />
+        <SidebarNavSection
+          section={SIDEBAR_SECTIONS.parameters}
+          pathname={pathname}
+        />
+        <SidebarNavSection
+          section={SIDEBAR_SECTIONS.community}
+          pathname={pathname}
+        />
       </SidebarContent>
 
       <SidebarSeparator />
-      <SidebarFooter>
+
+      <SidebarFooter className="gap-2 p-2">
+        {user && <SidebarUserCard user={user} />}
         <SidebarMenu>
+          <SidebarThemeToggle />
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Ajustes">
-              <Link href="/dashboard/settings">
-                <Settings />
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === ROUTES.DASHBOARD_SETTINGS}
+              tooltip="Ajustes"
+            >
+              <Link
+                href={ROUTES.DASHBOARD_SETTINGS}
+                onClick={() => {
+                  if (isMobile) setOpenMobile(false);
+                }}
+              >
+                <Settings className="size-4 shrink-0" />
                 <span>Ajustes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <ModalConfirmacion
-              title="¿Cerrar sesión?"
-              description="¿Estás seguro de que deseas cerrar tu sesión actual? Tendrás que volver a ingresar tus credenciales para acceder."
-              confirmText="Cerrar sesión"
-              cancelText="Cancelar"
-              onConfirm={async () => {
-                const { logoutUser } = await import("@/features/auth/actions");
-                await logoutUser();
-              }}
-              variant="destructive"
-              trigger={
-                <SidebarMenuButton tooltip="Cerrar sesión">
-                  <LogOut />
-                  <span>Cerrar sesión</span>
-                </SidebarMenuButton>
-              }
-            />
-          </SidebarMenuItem>
+          <SidebarLogoutButton />
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

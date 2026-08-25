@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Trash2, Pencil } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Trash2, Pencil, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -183,6 +183,35 @@ export function getColumns(
           return <span className="text-muted-foreground">Sin categoría</span>;
         }
         return <Badge variant="secondary">{categoria.nombre}</Badge>;
+      },
+    },
+    {
+      accessorKey: "esExportado",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="-ml-3 h-8"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Exportado
+          <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const esExportado = row.original.esExportado;
+        if (esExportado) {
+          return (
+            <Badge
+              variant="outline"
+              className="gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-medium"
+            >
+              <Globe className="h-3 w-3 shrink-0" />
+              Sí
+            </Badge>
+          );
+        }
+        return <span className="text-muted-foreground text-xs">No</span>;
       },
     },
     {

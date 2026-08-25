@@ -1,7 +1,7 @@
 import Navbar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
 import { Globe } from "lucide-react";
-import { TalentoExportadoSkeleton } from "@/features/luchadores/components/exportados/TalentoExportadoSkeleton";
+import { TalentoExportadoSkeleton } from "@/features/luchadores/components/exportados/public/TalentoExportadoSkeleton";
 
 export default function TalentoExportadoLoading() {
   return (
