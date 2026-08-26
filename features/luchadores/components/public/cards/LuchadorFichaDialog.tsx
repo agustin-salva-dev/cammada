@@ -68,7 +68,7 @@ export function LuchadorFichaDialog({
         )}
       </DialogTrigger>
       <DialogContent
-        showCloseButton={false}
+        showCloseButton
         className="max-h-[85vh] overflow-y-auto max-w-xl"
       >
         <DialogHeader>
@@ -86,7 +86,8 @@ export function LuchadorFichaDialog({
                 {luchador.apellido}
               </DialogTitle>
               <DialogDescription className="sr-only">
-                Ficha técnica y estadísticas de {luchador.nombre} {luchador.apellido}
+                Ficha técnica y estadísticas de {luchador.nombre}{" "}
+                {luchador.apellido}
               </DialogDescription>
             </div>
             {luchador.categoria && (

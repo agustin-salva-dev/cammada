@@ -50,6 +50,10 @@ export const PERMISSIONS = {
     VER: "exportados:ver",
     GESTIONAR: "exportados:gestionar",
   },
+  PREDICCIONES: {
+    VER: "predicciones:ver",
+    GESTIONAR: "predicciones:gestionar",
+  },
   AJUSTES: {
     GESTIONAR_CUENTAS: "ajustes:gestionar_cuentas",
     CONFIGURAR_ROLES: "ajustes:configurar_roles",
@@ -68,6 +72,7 @@ export const PERMISSION_GROUP_LABELS: Record<string, string> = {
   MODALIDADES: "Modalidades",
   RANKINGS: "Rankings",
   OPINIONES: "Opiniones & Feedback",
+  PREDICCIONES: "Predicciones",
   EXPORTADOS: "Talento Exportado",
   AJUSTES: "Ajustes",
 };
@@ -82,6 +87,7 @@ export const PERMISSION_ACTION_LABELS: Record<string, string> = {
   gestionar_cuentas: "Gestionar Cuentas",
   gestionar: "Gestionar",
   configurar_roles: "Configurar Roles",
+  activar: "Activar",
 };
 
 export const SYSTEM_ROLES = ["SUPERADMIN", "ADMIN", "AYUDANTE"] as const;

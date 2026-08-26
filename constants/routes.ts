@@ -19,6 +19,7 @@ export const ROUTES = {
   DASHBOARD_MODALIDADES: "/dashboard/modalidades",
   DASHBOARD_SETTINGS: "/dashboard/settings",
   DASHBOARD_OPINIONES: "/dashboard/opiniones",
+  DASHBOARD_PREDICCIONES: "/dashboard/predicciones",
   TALENTO_EXPORTADO: "/talento-exportado",
   DASHBOARD_EXPORTADOS: "/dashboard/exportados",
 } as const;

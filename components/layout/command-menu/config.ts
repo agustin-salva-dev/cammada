@@ -11,12 +11,12 @@ import {
   Globe,
   Home,
   PenLine,
-  TrendingUp,
   User,
   UserCog,
   ShieldCheck,
   UserPlus,
   Plus,
+  Vote,
 } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import type {
@@ -139,6 +139,15 @@ export const COMMAND_SECTIONS: CommandSectionConfig[] = [
             keywords:
               "opinion opiniones feedback comentario comentarios comunidad reseñas reseña valoraciones moderacion admin",
           },
+          {
+            label: "Predicciones",
+            icon: Vote,
+            route: ROUTES.DASHBOARD_PREDICCIONES,
+            permission: "predicciones:ver",
+            shortcut: "G P",
+            keywords:
+              "prediccion predicciones votos votar peleadores cartelera combate admin gestionar",
+          },
         ],
       },
     ],
@@ -229,12 +238,12 @@ export const COMMAND_SECTIONS: CommandSectionConfig[] = [
               "opinar opinion feedback dejar opinion formulario reseña reseñas escribe escribir web",
           },
           {
-            label: "Predicciones",
-            icon: TrendingUp,
+            label: "Predicciones de Combates",
+            icon: Vote,
             route: ROUTES.PREDICCIONES,
             shortcut: "P P",
             keywords:
-              "prediccion predicciones pronostico pronosticos quiniela resultados comunidad apuestas web",
+              "prediccion predicciones votar combate peleas cartelera ganador comunidad votos web",
           },
         ],
       },

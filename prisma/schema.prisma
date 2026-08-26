@@ -105,6 +105,8 @@ model Luchador {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
+  votosPrediccion   VotoPrediccion[]  @relation("LuchadorVotosPrediccion")
+
   @@index([esExportado])
 }
 
@@ -197,6 +199,9 @@ model Combate {
   roundFin        Int?
   minutoFin       Int?
   segundoFin      Int?
+
+  prediccionHabilitada Boolean       @default(false)
+  votosPrediccion      VotoPrediccion[]
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -335,3 +340,20 @@ model VotoOpinion {
   @@unique([opinionId, ipHash])
 }
 
+model VotoPrediccion {
+  id        String   @id @default(uuid())
+
+  combateId String
+  combate   Combate  @relation(fields: [combateId], references: [id], onDelete: Cascade)
+
+  peleadorId String
+  peleador   Luchador @relation("LuchadorVotosPrediccion", fields: [peleadorId], references: [id], onDelete: Cascade)
+
+  ipHash    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([combateId, ipHash])
+  @@index([combateId, peleadorId])
+}

@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { unstable_cache } from "next/cache";
+import { ESTADOS_EVENTO_PUBLICOS } from "@/features/eventos/zod";
 
 export type UltimaFightPublica = {
   eventoNumero: number;
@@ -50,6 +51,9 @@ async function getUltimaFight(
     where: {
       OR: [{ peleador1Id: luchadorId }, { peleador2Id: luchadorId }],
       estado: "FINALIZADO",
+      evento: {
+        estado: { in: ESTADOS_EVENTO_PUBLICOS },
+      },
     },
     orderBy: { evento: { fecha: "desc" } },
     select: {
