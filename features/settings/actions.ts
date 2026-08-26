@@ -2,14 +2,18 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { SYSTEM_ROLES } from "@/constants/permissions";
+import {
+  SYSTEM_ROLES,
+  PERMISSIONS,
+  ALL_PERMISSIONS,
+} from "@/constants/permissions";
 import {
   getAuthenticatedUser,
+  requirePermission,
   requireAdmin,
   toAuthError,
 } from "@/lib/action-guard";
 
-/** ADMIN cannot target a SUPERADMIN for role changes. */
 function assertCanManageRole(currentUserRole: string, targetUserRole: string) {
   if (currentUserRole === "ADMIN" && targetUserRole === "SUPERADMIN") {
     throw new Error("No tienes permisos para modificar un SUPERADMIN");
@@ -74,7 +78,7 @@ export async function getCurrentUserProfile() {
 }
 
 export async function getAllUsers() {
-  await requireAdmin();
+  await requirePermission(PERMISSIONS.AJUSTES.GESTIONAR_CUENTAS);
 
   try {
     const usuarios = await db.usuario.findMany({
@@ -97,13 +101,17 @@ export async function getAllUsers() {
 
     return { success: true, data: usuarios };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener usuarios:", error);
     return { success: false, error: "No se pudieron cargar los usuarios" };
   }
 }
 
 export async function deleteUser(userId: string) {
-  const currentUser = await requireAdmin();
+  const currentUser = await requirePermission(
+    PERMISSIONS.AJUSTES.GESTIONAR_CUENTAS,
+  );
 
   if (currentUser.id === userId) {
     return { success: false, error: "No puedes eliminar tu propia cuenta" };
@@ -136,7 +144,9 @@ export async function deleteUser(userId: string) {
 }
 
 export async function updateUserRole(userId: string, newRole: string) {
-  const currentUser = await requireAdmin();
+  const currentUser = await requirePermission(
+    PERMISSIONS.AJUSTES.GESTIONAR_CUENTAS,
+  );
 
   if (currentUser.id === userId) {
     return { success: false, error: "No puedes cambiar tu propio rol" };
@@ -194,15 +204,43 @@ export async function getRolesConfig() {
     const roles = await db.rolConfig.findMany({
       orderBy: { createdAt: "asc" },
     });
-    return { success: true, data: roles };
+
+    const superAdminRole = roles.find((r) => r.nombre === "SUPERADMIN");
+    if (
+      superAdminRole &&
+      superAdminRole.permisos.length !== ALL_PERMISSIONS.length
+    ) {
+      await db.rolConfig
+        .update({
+          where: { nombre: "SUPERADMIN" },
+          data: { permisos: ALL_PERMISSIONS as unknown as string[] },
+        })
+        .catch((e) =>
+          console.error("Error al sincronizar permisos de SUPERADMIN:", e),
+        );
+    }
+
+    const mappedRoles = roles.map((role) => {
+      if (role.nombre === "SUPERADMIN") {
+        return {
+          ...role,
+          permisos: ALL_PERMISSIONS as unknown as string[],
+        };
+      }
+      return role;
+    });
+
+    return { success: true, data: mappedRoles };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al obtener roles:", error);
     return { success: false, error: "No se pudieron cargar los roles" };
   }
 }
 
 export async function createCustomRole(name: string) {
-  await requireAdmin();
+  await requirePermission(PERMISSIONS.AJUSTES.CONFIGURAR_ROLES);
 
   const trimmed = name.trim().toUpperCase();
 
@@ -241,6 +279,8 @@ export async function createCustomRole(name: string) {
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al crear rol:", error);
     return { success: false, error: "No se pudo crear el rol" };
   }
@@ -250,7 +290,7 @@ export async function updateRolePermissions(
   roleName: string,
   permissions: string[],
 ) {
-  const user = await requireAdmin();
+  const user = await requirePermission(PERMISSIONS.AJUSTES.CONFIGURAR_ROLES);
 
   if (roleName === "SUPERADMIN") {
     return {
@@ -274,13 +314,15 @@ export async function updateRolePermissions(
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al actualizar permisos:", error);
     return { success: false, error: "No se pudieron actualizar los permisos" };
   }
 }
 
 export async function deleteCustomRole(roleName: string) {
-  await requireAdmin();
+  await requirePermission(PERMISSIONS.AJUSTES.CONFIGURAR_ROLES);
 
   if ((SYSTEM_ROLES as readonly string[]).includes(roleName)) {
     return { success: false, error: "No se pueden eliminar roles del sistema" };
@@ -305,6 +347,8 @@ export async function deleteCustomRole(roleName: string) {
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error) {
+    const authError = toAuthError(error);
+    if (authError) return authError;
     console.error("Error al eliminar rol:", error);
     return { success: false, error: "No se pudo eliminar el rol" };
   }

@@ -99,7 +99,7 @@ export function SearchableSelect({
       )}
 
       {open && (
-        <div className="absolute z-50 mt-1.5 flex w-full flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95">
+        <div className="absolute z-50 mt-1.5 flex w-full flex-col overflow-hidden rounded-lg border border-border bg-popover dark:bg-zinc-900 dark:border-white/15 text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95">
           <div className="relative border-b border-border p-2">
             <SearchIcon className="absolute top-1/2 left-4 size-3.5 -translate-y-1/2 text-muted-foreground opacity-50" />
             <Input

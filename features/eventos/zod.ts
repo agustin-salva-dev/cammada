@@ -12,6 +12,11 @@ export const ESTADOS_EVENTO = [
 
 export type EstadoEvento = (typeof ESTADOS_EVENTO)[number];
 
+export const ESTADOS_EVENTO_PUBLICOS: EstadoEvento[] = [
+  "CONFIRMADO",
+  "FINALIZADO",
+];
+
 export const ESTADO_LABELS: Record<EstadoEvento, string> = {
   BORRADOR: "Borrador",
   PROGRAMADO: "Programado",

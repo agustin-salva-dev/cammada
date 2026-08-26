@@ -57,7 +57,7 @@ export function CarteleraFilterBar({
   setSoloTitulo,
 }: CarteleraFilterBarProps) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/2 p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
+    <div className="relative z-30 rounded-2xl border border-white/5 bg-white/2 p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
       <div className="flex items-center justify-between gap-3">
         <button
           type="button"

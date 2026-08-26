@@ -52,7 +52,7 @@ export function EquipoFichaDialog({
         )}
       </DialogTrigger>
       <DialogContent
-        showCloseButton={false}
+        showCloseButton
         className="max-h-[85vh] overflow-y-auto max-w-2xl"
       >
         <DialogHeader>
@@ -94,9 +94,7 @@ export function EquipoFichaDialog({
                   {totalVictorias} Victorias
                 </span>{" "}
                 -{" "}
-                <span className="text-rose-500">
-                  {totalDerrotas} Derrotas
-                </span>
+                <span className="text-rose-500">{totalDerrotas} Derrotas</span>
               </span>
             </div>
 
@@ -106,8 +104,7 @@ export function EquipoFichaDialog({
               </span>
               <span className="font-semibold text-foreground mt-0.5 flex items-center gap-1">
                 <Globe size={12} className="text-sky-500" />
-                {totalExportados}{" "}
-                {totalExportados === 1 ? "atleta" : "atletas"}
+                {totalExportados} {totalExportados === 1 ? "atleta" : "atletas"}
               </span>
             </div>
           </div>

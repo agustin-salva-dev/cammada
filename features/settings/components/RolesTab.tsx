@@ -46,8 +46,12 @@ export function RolesTab({ rolesConfig, currentUser }: RolesTabProps) {
   const currentRole =
     rolesConfig.find((r) => r.nombre === selectedRole?.nombre) ?? selectedRole;
 
+  const isSuperAdmin = currentRole?.nombre === "SUPERADMIN";
+
   const currentUserPermissions =
-    rolesConfig.find((r) => r.nombre === currentUser.role)?.permisos ?? [];
+    currentUser.role === "SUPERADMIN"
+      ? (ALL_PERMISSIONS as unknown as string[])
+      : (rolesConfig.find((r) => r.nombre === currentUser.role)?.permisos ?? []);
 
   const permissionGroups = Object.keys(PERMISSIONS) as Array<
     keyof typeof PERMISSIONS
@@ -340,9 +344,11 @@ export function RolesTab({ rolesConfig, currentUser }: RolesTabProps) {
 
                   if (viewableGroupPermissions.length === 0) return null;
 
-                  const hasAllGroup = viewableGroupPermissions.every((p) =>
-                    currentRole.permisos.includes(p),
-                  );
+                  const hasAllGroup =
+                    isSuperAdmin ||
+                    viewableGroupPermissions.every((p) =>
+                      currentRole.permisos.includes(p),
+                    );
 
                   return (
                     <div key={groupKey} className="space-y-4">
@@ -371,6 +377,7 @@ export function RolesTab({ rolesConfig, currentUser }: RolesTabProps) {
                           const actionLabel =
                             PERMISSION_ACTION_LABELS[action] ?? action;
                           const hasPermission =
+                            isSuperAdmin ||
                             currentRole.permisos.includes(permission);
 
                           return (

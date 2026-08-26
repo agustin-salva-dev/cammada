@@ -9,6 +9,7 @@ import {
   Medal,
   MessageSquare,
   Globe,
+  Vote,
 } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import type { SidebarNavSectionConfig } from "./types";
@@ -95,6 +96,13 @@ export const SIDEBAR_SECTIONS: Record<string, SidebarNavSectionConfig> = {
         icon: MessageSquare,
         publicUrl: ROUTES.OPINIONES,
         publicLabel: "Ver opiniones públicas",
+      },
+      {
+        title: "Predicciones",
+        url: ROUTES.DASHBOARD_PREDICCIONES,
+        icon: Vote,
+        publicUrl: ROUTES.PREDICCIONES,
+        publicLabel: "Ver predicciones públicas",
       },
     ],
   },

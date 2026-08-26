@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import type { Prisma } from "@prisma/client";
+import { ESTADOS_EVENTO_PUBLICOS } from "./zod";
 
 const combateListInclude = {
   peleador1: {
@@ -67,6 +68,9 @@ export type CombatePublicoDetalle = EventoPublicoDetalle["combates"][number];
 const getCachedPublicEventos = unstable_cache(
   async () => {
     return db.evento.findMany({
+      where: {
+        estado: { in: ESTADOS_EVENTO_PUBLICOS },
+      },
       orderBy: { numero: "desc" },
       include: eventoListInclude,
     });
@@ -79,13 +83,19 @@ const getCachedPublicEventoDetail = unstable_cache(
   async (idOrNumero: string) => {
     const asNumber = Number(idOrNumero);
     if (!Number.isNaN(asNumber) && Number.isInteger(asNumber)) {
-      return db.evento.findUnique({
-        where: { numero: asNumber },
+      return db.evento.findFirst({
+        where: {
+          numero: asNumber,
+          estado: { in: ESTADOS_EVENTO_PUBLICOS },
+        },
         include: eventoDetailInclude,
       });
     }
-    return db.evento.findUnique({
-      where: { id: idOrNumero },
+    return db.evento.findFirst({
+      where: {
+        id: idOrNumero,
+        estado: { in: ESTADOS_EVENTO_PUBLICOS },
+      },
       include: eventoDetailInclude,
     });
   },

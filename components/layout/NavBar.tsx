@@ -170,9 +170,9 @@ export default function Navbar() {
   ];
 
   const comunidadItems: NavLinkItem[] = [
+    { href: ROUTES.PREDICCIONES, label: "Predicciones", icon: TrendingUp },
     { href: ROUTES.OPINIONES, label: "Opiniones", icon: MessageSquare },
     { href: ROUTES.OPINAR, label: "Deja tu opinión", icon: PenLine },
-    { href: ROUTES.PREDICCIONES, label: "Predicciones", icon: TrendingUp },
   ];
 
   const isCompeticionActive = competicionItems.some((i) =>
@@ -227,7 +227,7 @@ export default function Navbar() {
     >
       <CammadaLogo />
 
-      <section className="transition-colors duration-200 font-heading animate-fade-in hidden md:flex bg-white/15 dark:bg-black/15 backdrop-blur-md border border-border/30 hover:border-border rounded-xl drop-shadow-lg gap-5 font-normal text-xs 2xl:text-sm px-6 py-1.5 items-center">
+      <section className="transition-colors duration-200 font-heading animate-fade-in hidden lg:flex bg-white/15 dark:bg-black/15 backdrop-blur-md border border-border/30 hover:border-border rounded-xl drop-shadow-lg gap-5 font-normal text-xs 2xl:text-sm px-6 py-1.5 items-center">
         {navEntries.map((entry) =>
           entry.type === "link" ? (
             <NavLink
@@ -271,11 +271,11 @@ export default function Navbar() {
           Compra tus entradas!
         </SpecularButton>
 
-        <div className="hidden md:flex">
+        <div className="hidden lg:flex">
           <ModeToggle />
         </div>
 
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

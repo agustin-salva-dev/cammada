@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import type { ActionResult } from "@/lib/types";
 import { Prisma } from "@prisma/client";
+import { ESTADOS_EVENTO_PUBLICOS } from "@/features/eventos/zod";
 
 export type LuchadorPublico = Prisma.LuchadorGetPayload<{
   include: {
@@ -99,6 +100,11 @@ const getCachedLuchadoresPublicos = unstable_cache(
         equipo: true,
         records: { include: { modalidad: true } },
         combatesComoPel1: {
+          where: {
+            evento: {
+              estado: { in: ESTADOS_EVENTO_PUBLICOS },
+            },
+          },
           include: {
             evento: {
               select: {
@@ -138,6 +144,11 @@ const getCachedLuchadoresPublicos = unstable_cache(
           },
         },
         combatesComoPel2: {
+          where: {
+            evento: {
+              estado: { in: ESTADOS_EVENTO_PUBLICOS },
+            },
+          },
           include: {
             evento: {
               select: {
