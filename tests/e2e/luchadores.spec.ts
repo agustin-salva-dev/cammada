@@ -23,7 +23,9 @@ test.describe("Luchadores — creación", () => {
     await page
       .getByRole("button", { name: /nuevo luchador|registrar/i })
       .click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: /agregar luchador/i }),
+    ).toBeVisible();
   });
 
   test("muestra errores de validación al enviar formulario incompleto", async ({

@@ -23,7 +23,9 @@ test.describe("Rankings — creación", () => {
     await page
       .getByRole("button", { name: /nuevo ranking|crear ranking/i })
       .click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: /nuevo ranking/i }),
+    ).toBeVisible();
   });
 });
 
@@ -39,13 +41,17 @@ test.describe("Rankings — edición de posiciones", () => {
         .getByRole("button", { name: /nuevo ranking|crear ranking/i })
         .first()
         .click();
-      await expect(page.getByRole("dialog")).toBeVisible();
+      await expect(
+        page.getByRole("dialog", { name: /nuevo ranking/i }),
+      ).toBeVisible();
       const selectModalidad = page.locator("select[id*='modalidad']");
       await selectModalidad.selectOption({ index: 1 });
       await page
         .getByRole("button", { name: /crear ranking|guardar/i })
         .click();
-      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(
+        page.getByRole("dialog", { name: /nuevo ranking/i }),
+      ).not.toBeVisible();
       await expect(cards.first()).toBeVisible();
       hasRankings = true;
     }

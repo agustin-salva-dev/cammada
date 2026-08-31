@@ -39,15 +39,6 @@ export function LegalLayout({ document }: LegalLayoutProps) {
       </div>
 
       <div className="mt-14 sm:mt-20 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p className="text-xs text-muted-foreground">
-          Para consultas legales escribinos a{" "}
-          <a
-            href="mailto:legal@cammada.com"
-            className="text-primary hover:underline transition-colors"
-          >
-            legal@cammada.com
-          </a>
-        </p>
         <Link
           href="/"
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
