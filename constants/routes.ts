@@ -22,5 +22,10 @@ export const ROUTES = {
   DASHBOARD_PREDICCIONES: "/dashboard/predicciones",
   TALENTO_EXPORTADO: "/talento-exportado",
   DASHBOARD_EXPORTADOS: "/dashboard/exportados",
+  SOBRE_NOSOTROS: "/sobre-nosotros",
+  CONTACTO: "/contacto",
+  LEGAL_PRIVACIDAD: "/legal/privacidad",
+  LEGAL_TERMINOS: "/legal/terminos",
+  LEGAL_COOKIES: "/legal/cookies",
+  LEGAL_DISCLAIMER: "/legal/disclaimer",
 } as const;
-

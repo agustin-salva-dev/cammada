@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import AuroraBackground from "@/components/AuroraBackground";
+import { JsonLd } from "@/components/layout/JsonLd";
+import { CookieConsentBanner } from "@/features/cookies/components/CookieConsentBanner";
+import { siteConfig } from "@/config/site";
 
 const spaceGroteskHeading = Space_Grotesk({
   subsets: ["latin"],
@@ -26,9 +29,52 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cammada | Pagina Web Oficial",
-  description:
-    "Sigue los resultados en vivo, explora los rankings, las carteleras y todos los detalles de los enfrentamientos que definirán a los próximos campeones.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} | Página Web Oficial`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "MMA Argentina",
+    "artes marciales mixtas",
+    "Salta",
+    "kickboxing",
+    "grappling",
+    "Cammada Fight Session",
+    "eventos de combate",
+    "Norte Argentino",
+  ],
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} | Página Web Oficial`,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} | Página Web Oficial`,
+    description: siteConfig.description,
+  },
+  alternates: {
+    canonical: siteConfig.url,
+  },
 };
 
 export default function RootLayout({
@@ -48,6 +94,9 @@ export default function RootLayout({
         spaceGroteskHeading.variable,
       )}
     >
+      <head>
+        <JsonLd />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"
@@ -57,6 +106,7 @@ export default function RootLayout({
         >
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
+          <CookieConsentBanner />
           <div
             style={{
               position: "fixed",

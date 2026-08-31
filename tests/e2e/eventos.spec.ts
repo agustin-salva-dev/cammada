@@ -21,7 +21,9 @@ test.describe("Eventos — creación", () => {
     await page
       .getByRole("button", { name: /nuevo evento|crear evento/i })
       .click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: /nuevo evento/i }),
+    ).toBeVisible();
   });
 
   test("muestra errores de validación al enviar formulario vacío", async ({

@@ -139,7 +139,8 @@ export async function createLuchador(rawInput: unknown) {
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
     const categoria = validatedData.categoria;
-    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } = validatedData;
+    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } =
+      validatedData;
 
     const result = await db.$transaction(async (tx) => {
       const dbEquipo = await tx.equipo.upsert({
@@ -226,7 +227,8 @@ export async function updateLuchador(id: string, rawInput: unknown) {
     const ciudad = validatedData.ciudad || "Desconocida";
     const equipo = validatedData.equipo || "Sin equipo";
     const categoria = validatedData.categoria;
-    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } = validatedData;
+    const { edad, altura, ultimoPeso, records, esExportado, linkTapology } =
+      validatedData;
 
     const result = await db.$transaction(async (tx) => {
       const dbEquipo = await tx.equipo.upsert({
@@ -341,7 +343,9 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
 
     let slug = slugOrUrl.split("?")[0].replace(/\/+$/, "");
     const originalUrl = slug.includes("tapology.com")
-      ? slug.startsWith("http") ? slug : `https://${slug}`
+      ? slug.startsWith("http")
+        ? slug
+        : `https://${slug}`
       : null;
     if (slug.includes("/fighters/")) {
       const parts = slug.split("/fighters/");
@@ -363,7 +367,6 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
     const apiHost =
       process.env.RAPIDAPI_HOST || "unofficial-tapology-api.p.rapidapi.com";
 
-    // Candidate IDs to query: numeric ID first (e.g. "107777" from "107777-humberto-storti"), then full slug
     const candidateIds: string[] = [];
     const numericMatch = slug.match(/^(\d+)/);
     if (numericMatch) {
@@ -389,13 +392,16 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
             "Content-Type": "application/json",
           },
           redirect: "manual",
-          signal: AbortSignal.timeout(7000),
         });
 
         if (res.ok) {
           response = res;
           break;
-        } else if (res.status === 301 || res.status === 302 || res.type === "opaqueredirect") {
+        } else if (
+          res.status === 301 ||
+          res.status === 302 ||
+          res.type === "opaqueredirect"
+        ) {
           redirectDetected = true;
           response = res;
           break;
@@ -419,7 +425,10 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
         }
         response = res;
       } catch (fetchErr: unknown) {
-        console.error(`Error al conectar con la API de Tapology (RapidAPI candidate ${candidateId}):`, fetchErr);
+        console.error(
+          `Error al conectar con la API de Tapology (RapidAPI candidate ${candidateId}):`,
+          fetchErr,
+        );
         const isTimeout =
           fetchErr instanceof Error &&
           (fetchErr.name === "TimeoutError" || fetchErr.name === "AbortError");
@@ -438,7 +447,11 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
           error: serverErrorMsg,
         };
       }
-      if (redirectDetected || response?.status === 301 || response?.status === 302) {
+      if (
+        redirectDetected ||
+        response?.status === 301 ||
+        response?.status === 302
+      ) {
         return {
           success: false,
           error:
@@ -448,8 +461,7 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       if (response?.status === 404) {
         return {
           success: false,
-          error:
-            "Luchador no encontrado en Tapology. Verificá el ID o la URL.",
+          error: "Luchador no encontrado en Tapology. Verificá el ID o la URL.",
         };
       }
       return {
@@ -536,7 +548,8 @@ export async function fetchTapologyFighter(slugOrUrl: string) {
       ciudad: "Salta",
       equipo: "",
       records: [initialRecord],
-      linkTapology: originalUrl || `https://www.tapology.com/fightcenter/fighters/${slug}`,
+      linkTapology:
+        originalUrl || `https://www.tapology.com/fightcenter/fighters/${slug}`,
     };
 
     return { success: true, data: mappedFighter };
