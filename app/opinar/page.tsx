@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function OpinarPage() {
   return (
-    <div className="min-h-dvh w-full overflow-x-hidden flex flex-col items-center px-4 sm:px-6 md:px-8 py-20 sm:py-24 xl:pt-32 xl:pb-20 gap-10 sm:gap-12">
+    <div className="min-h-dvh w-full overflow-x-hidden flex flex-col items-center px-4 sm:px-6 md:px-8 gap-10 sm:gap-12">
       <Navbar />
 
-      <div className="w-full max-w-4xl mx-auto space-y-12 animate-fade-in">
+      <main className="w-full flex flex-col items-center gap-4 md:gap-6 xl:gap-8 2xl:gap-9 pt-20 pb-15 sm:pt-24 sm:pb-18 xl:pt-32 xl:pb-20 animate-fade-in">
         <header className="text-center space-y-4">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
             <Sparkles className="w-3.5 h-3.5" /> Tu opinión nos ayuda a crecer
@@ -54,7 +54,7 @@ export default function OpinarPage() {
             <ModalOpinion />
           </div>
         </section>
-      </div>
+      </main>
 
       <Footer />
     </div>

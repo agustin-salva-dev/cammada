@@ -10,7 +10,7 @@ import {
 } from "../utils/eventHelpers";
 
 export function useCarteleraFiltros(combates: CombatePublicoDetalle[]) {
-  const [isFiltersExpanded, setIsFiltersExpanded] = React.useState(true);
+  const [isFiltersExpanded, setIsFiltersExpanded] = React.useState(false);
 
   const [peleadorId, setPeleadorId] = React.useState(ALL_FILTER_KEY);
   const [equipoId, setEquipoId] = React.useState(ALL_FILTER_KEY);

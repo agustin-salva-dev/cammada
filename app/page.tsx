@@ -10,9 +10,9 @@ export default async function Home() {
   const eventoDestacado = eventos[0] ?? null;
 
   return (
-    <div className="min-h-dvh w-full overflow-x-hidden relative flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-10.5 2xl:px-42 py-20 sm:py-24 xl:pb-0 xl:py-0">
+    <div className="min-h-dvh w-full overflow-x-hidden relative flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 lg:px-10.5 2xl:px-42">
       <Navbar />
-      <main className="flex flex-col xl:flex-row items-center gap-8 xl:gap-10 w-full max-w-full justify-center xl:justify-between animate-fade-in">
+      <main className="flex flex-col xl:flex-row items-center py-22 2xl:py-60 gap-8 xl:gap-10 w-full max-w-full justify-center xl:justify-between animate-fade-in">
         <div className="flex flex-col items-center xl:items-baseline text-center xl:text-left w-full xl:w-auto">
           <div className="flex flex-col items-center xl:items-baseline gap-4 lg:gap-6 2xl:gap-12 w-full">
             {eventoDestacado && (
